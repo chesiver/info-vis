@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.group-tick line {
+  stroke: #000;
+}
+
+.ribbons {
+  fill-opacity: 0.67;
+}
+
+</style>
+<svg width="960" height="960">
+  <path id="heart" d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
+  c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
+  c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
+  c21-20.3,32.8-47.9,32.8-77.5C448,131.3,399.9,83,340.8,83L340.8,83z"/>
+</svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-path.v1.min.js"></script>
+<script src="path-data-polyfill.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height")
+
+console.log("width " + width + " " + "height " + height)
+console.log("point number: " + d3.selectAll('#heart').node().length)
+var pathLength = d3.selectAll('#heart').node().getTotalLength() / 2.58
+console.log("pathLength " + pathLength)
+var pointsArray = [];
+var num = 128
+for (var len = 0; len < pathLength; len += pathLength / num) {
+  var pt = d3.selectAll('#heart').node().getPointAtLength(len)
+  pointsArray.push({"x": pt.x, "y": pt.y})
+} 
+scale = 2.0
+pointsArray.forEach(function(d) {
+  d.x = d.x * scale
+  d.y = d.y * scale
+})
+console.log(pointsArray)
+
+var valueline = d3.line()
+    .x(function(d) { return d.x; })
+    .y(function(d) { return d.y; })
+
+d3.select("#heart").style("opacity", 0);
+
+svg.append("path")
+  .attr("class", "line")
+  .attr("d", valueline(pointsArray))
+  .attr("fill", "none")
+  .attr("stroke", "#000")
+  .attr("stroke-width", "2.5px")
+
+pointsArray.push({"x": width / 2, "y": height / 2})
+
+svg.selectAll("circle").data(pointsArray)
+  .enter().append("circle")
+  .attr("cx", function(d) {return d.x})
+  .attr("cy", function(d) {return d.y})
+  .attr("r", 5)
+  .attr("fill", "red")
+
+svg.append("circle")
+  .attr("cx", width / 2)
+  .attr("cy", height / 2)
+  .attr("r", 5)
+  .attr("fill", "blue")
+
+
+function mappingToPointIndex(group, id) {
+  switch (group) {
+    case "boy": return num - 1 - id;
+    case "girl": return id;
+  }
+}
+
+
+for (var testId = 0; testId < 20; testId += 5) {
+  // svg.append("line")
+  //   .attr("x1", pointsArray[mappingToPointIndex("boy", testId)].x)
+  //   .attr("y1", pointsArray[mappingToPointIndex("boy", testId)].y)
+  //   .attr("x2", pointsArray[mappingToPointIndex("girl", testId)].x)
+  //   .attr("y2", pointsArray[mappingToPointIndex("girl", testId)].y)
+  //   .attr("stroke", "#000")
+  //   .attr("stroke-width", "2.5px")
+}
+
+  var testId1 = 5, testId2 = 15
+
+
+  var connection_path = d3.path()
+  connection_path.moveTo(pointsArray[mappingToPointIndex("boy", testId1)].x, pointsArray[mappingToPointIndex("boy", testId1)].y)
+  connection_path.quadraticCurveTo(width / 2, height / 2, 
+    pointsArray[mappingToPointIndex("girl", testId2)].x, pointsArray[mappingToPointIndex("girl", testId2)].y) 
+
+  svg.append('path')
+    .attr('class', 'link')
+    .attr("fill", "none")
+    .attr("stroke", "#000")
+    .attr("stroke-width", "2.5px")
+    .attr('d', connection_path.toString());
+
+
+
+</script>
