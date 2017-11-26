@@ -6,24 +6,53 @@ body {
   font: 10px sans-serif;
 }
 
-.group-tick line {
-  stroke: #000;
-}
-
-.ribbons {
-  fill-opacity: 0.67;
+div.tooltip { 
+    position: absolute;     
+    text-align: center;     
+    width: 60px;          
+    height: 28px;         
+    padding: 2px;       
+    font: 12px sans-serif;    
+    background: lightsteelblue; 
+    border: 0px;    
+    border-radius: 8px;     
+    pointer-events: none;     
 }
 
 </style>
+
+<body>
+  <div style="width:1000px; height:100px; margin:0 auto;" >
+    <select id="attribute" width="auto">
+      <option value="attractive">Attractive</option>
+      <option value="sincere">Sincere</option>
+    </select>
+  </div>
+  <!-- <table width="50%">
+    <tr>
+      <td align="center">
+        <select width="100px" height="100px">
+          <option value="attractive">Attractive</option>
+          <option value="sincere">Sincere</option>
+        </select>
+      </td>
+      <td align="right"></td>
+    </tr>
+</table> -->
+<!-- template for the heart shape -->
 <svg width="960" height="960">
   <path id="heart" opacity=0 d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
   c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
   c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
   c21-20.3,32.8-47.9,32.8-77.5C448,131.3,399.9,83,340.8,83L340.8,83z"/>
 </svg>
+</body>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-path.v1.min.js"></script>
 <script src="path-data-polyfill.js"></script>
+
+<script src="loadData.js"></script>
 <script>
 
 var svg = d3.select("svg"),
@@ -31,11 +60,10 @@ var svg = d3.select("svg"),
     height = +svg.attr("height")
 
 console.log("width " + width + " " + "height " + height)
-console.log("point number: " + d3.selectAll('#heart').node().length)
 var pathLength = d3.selectAll('#heart').node().getTotalLength() / 2.58
 console.log("pathLength " + pathLength)
 var pointsArray = [];
-var num = 128
+var num = 202
 
 //SVG API, get point with defind length from end point
 //Evenly divided the curve, points serve as scales
@@ -57,26 +85,55 @@ var valueline = d3.line()
     .x(function(d) { return d.x; })
     .y(function(d) { return d.y; })
 
+svg.append("text")
+  .attr("x", 100)
+  .attr("y", 200)
+  .attr("font-size", "30px")
+  .text("Male")
+
+
+svg.append("text")
+  .attr("x", 800)
+  .attr("y", 200)
+  .attr("font-size", "30px")
+  .text("Female")
+
+//draw heart path
 svg.append("path")
   .attr("class", "line")
   .attr("d", valueline(pointsArray))
   .attr("fill", "none")
   .attr("stroke", "#000")
-  .attr("stroke-width", "2.5px")
+  .attr("stroke-width", "2px")
+  .attr("opacity", "0.3")
 
-svg.selectAll("circle").data(pointsArray)
+var div = d3.select("body").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
+
+// mapping from [0, num / 2] -> [0, 100]
+var x = d3.scaleLinear()
+    .domain([0, num / 2 - 1])
+    .range([0, 100]);
+
+//draw heart cirlces on the path
+circles = svg.selectAll("circle").data(pointsArray)
   .enter().append("circle")
-  .attr("cx", function(d) {return d.x})
+circles.attr("cx", function(d) {return d.x})
   .attr("cy", function(d) {return d.y})
-  .attr("r", 5)
-  .attr("fill", "red")
+  .attr("r", 4)
+  .attr("fill", function(d, i) {
+    if (i < num / 2) return "red";
+    else return "blue"
+  })
+  .attr("opacity", "0.5")
 
 //draw the blue center point, with help to draw the quadratic connection curve
 svg.append("circle")
   .attr("cx", width / 2)
   .attr("cy", height / 2)
-  .attr("r", 5)
-  .attr("fill", "blue")
+  .attr("r", 4)
+  .attr("fill", "orange")
 
 
 //the heart needs to be divided to 2 parts, so the point index needs a mapping
@@ -87,20 +144,119 @@ function mappingToPointIndex(group, id) {
   }
 }
 
-//test connection curve
-var testId1 = 5, testId2 = 15
+function mappingToVertexId(d, low, high) {
+  return Math.floor((d - low) / (high - low) * (num / 2 - 1))
+}
 
-var connection_path = d3.path()
-connection_path.moveTo(pointsArray[mappingToPointIndex("boy", testId1)].x, pointsArray[mappingToPointIndex("boy", testId1)].y)
-connection_path.quadraticCurveTo(width / 2, height / 2, 
-  pointsArray[mappingToPointIndex("girl", testId2)].x, pointsArray[mappingToPointIndex("girl", testId2)].y) 
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
-svg.append('path')
-  .attr('class', 'link')
-  .attr("fill", "none")
-  .attr("stroke", "#000")
-  .attr("stroke-width", "2.5px")
-  .attr('d', connection_path.toString());
+function mappingAttribute(name) {
+  switch (name) {
+    case 'attractive': return 'attr1_1'
+    case 'sincere': return 'sinc1_1'
+  }
+}
+
+function updateConnectionLine(d, male_avg, female_avg) {
+  svg.selectAll("[class=link]").remove()
+  svg.selectAll("path").data(d).enter().append("path")
+    .attr('class', 'link')
+    .attr("fill", "none")
+    .attr("stroke", "#000")
+    .attr("stroke-width", "0.5px")
+    .attr("opacity", "0.3")
+    .attr("id1", function(d, i) {
+      var x = male_avg[d['iid']]
+      if (!isNumeric(x)) return null;
+      var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100))
+      return id1
+    })
+    .attr("id2", function(d, i) {
+      var y = female_avg[d['pid']]
+      if (!isNumeric(y)) return null; 
+      var id2 = mappingToPointIndex("girl", mappingToVertexId(y, 0, 100))
+      return id2
+    })
+    .attr("d", function(d, i) {
+      var connection_path = d3.path()
+      var x = male_avg[d['iid']], y = female_avg[d['pid']]
+      if (!isNumeric(x) || !isNumeric(y)) return null;
+      var id1 = mappingToVertexId(x, 0, 100), 
+        id2 = mappingToVertexId(y, 0, 100)
+      console.log("id1: " + id1 + " " + "id2: " + id2)
+      connection_path.moveTo(pointsArray[mappingToPointIndex("boy", id1)].x, pointsArray[mappingToPointIndex("boy", id1)].y)
+      connection_path.quadraticCurveTo(width / 2, height / 2, 
+        pointsArray[mappingToPointIndex("girl", id2)].x, pointsArray[mappingToPointIndex("girl", id2)].y)
+      return connection_path.toString();
+    })
+}
+
+
+d3.csv("../data/Speed Dating Data.csv", function(data) {
+  console.log(data)
+
+  male_data = data.filter(row => row['match'] == '1').filter(row => row['gender'] == '1')
+  female_avg_attr1_1 = getAveragePeerScore(data, '0', 'attr1_1', '1')
+  male_avg_attr1_1 = getAveragePeerScore(data, '1', 'attr1_1', '1')
+
+  d3.select('#attribute')
+    .on("change", function () {
+      var sect = document.getElementById("attribute");
+      var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
+      console.log("attribute: " + attribute)
+      female_avg = getAveragePeerScore(data, '0', attribute, '1')
+      male_avg = getAveragePeerScore(data, '1', attribute, '1')
+      updateConnectionLine(male_data.slice(0, 64), male_avg, female_avg)
+  });
+
+  updateConnectionLine(male_data.slice(0, 64), male_avg_attr1_1, female_avg_attr1_1)
+
+  circles.on("mouseover", function(d, i) {
+    d3.select(this)
+      .attr("fill", i < num / 2? "orange": "green")
+      .attr("r", 10)
+    div.transition()
+         .duration(200)
+         .style("opacity", 0.8);
+       div.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+         .style("left", d3.event.pageX + "px")
+         .style("top", (d3.event.pageY - 28) + "px")
+         .style("font-size", "15px")
+    if (i < num / 2) {
+      d3.selectAll("[id2='" + i + "']")
+      .attr("stroke-width", "2.5px")
+      .attr("stroke", "purple")
+      .attr("opacity", "0.8")
+    }
+    else {
+      d3.selectAll("[id1='" + i + "']").attr("stroke-width", "2.5px")
+      .attr("stroke", "purple")
+      .attr("opacity", "0.8")
+    }
+  })
+  .on("mouseout", function(d, i) {
+    d3.select(this)
+      .attr("fill", i < num / 2? "red": "blue")
+      .attr("r", 4)
+    div.transition()
+         .duration(500)
+         .style("opacity", 0);
+    if (i < num / 2) {
+      d3.selectAll("[id2='" + i + "']")
+        .attr("stroke-width", "0.5px")
+        .attr("stroke", "black")
+        .attr("opacity", "0.3")
+    }
+    else {
+      d3.selectAll("[id1='" + i + "']")
+        .attr("stroke-width", "0.5px")
+        .attr("stroke", "black")
+        .attr("opacity", "0.3")
+    }
+  })
+})
 
 
 
