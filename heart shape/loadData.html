@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>load data</title>
+</head>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="./loadData.js"></script>
+
+<script type="text/javascript">
+	d3.csv("../data/Speed Dating Data.csv", function(d) {
+		matched_pair_by_iid_of_male_avg_attr1_1 = getAveragePeerScore(d, '0', 'attr1_1', '1')
+		console.log(matched_pair_by_iid_of_male_avg_attr1_1)
+	})
+</script>
+
+<body>
+
+</body>
+</html>
