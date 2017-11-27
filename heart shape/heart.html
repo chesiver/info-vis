@@ -48,9 +48,8 @@ div.tooltip {
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-path.v1.min.js"></script>
-<script src="path-data-polyfill.js"></script>
-
-<script src="loadData.js"></script>
+<script src="/heart shape/path-data-polyfill.js"></script>
+<script src="/heart shape/loadData.js"></script>
 <script>
 
 var svg = d3.select("svg"),
@@ -193,7 +192,7 @@ function updateConnectionLine(d, male_avg, female_avg) {
 }
 
 
-d3.csv("../data/Speed Dating Data.csv", function(data) {
+d3.csv("/data/Speed Dating Data.csv", function(data) {
   console.log(data)
 
   male_data = data.filter(row => row['match'] == '1').filter(row => row['gender'] == '1')
