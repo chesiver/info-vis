@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
 
+<head>
+  <link rel="stylesheet" href="select.css">
+</head>
+
+<style>
 body {
   font: 10px sans-serif;
 }
@@ -22,30 +26,22 @@ div.tooltip {
 </style>
 
 <body>
-  <div style="width:1000px; height:100px; margin:0 auto;" >
+
+  <div id="mainselection">
     <select id="attribute" width="auto">
       <option value="attractive">Attractive</option>
       <option value="sincere">Sincere</option>
     </select>
   </div>
-  <!-- <table width="50%">
-    <tr>
-      <td align="center">
-        <select width="100px" height="100px">
-          <option value="attractive">Attractive</option>
-          <option value="sincere">Sincere</option>
-        </select>
-      </td>
-      <td align="right"></td>
-    </tr>
-</table> -->
-<!-- template for the heart shape -->
-<svg width="960" height="960">
-  <path id="heart" opacity=0 d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
-  c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
-  c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
-  c21-20.3,32.8-47.9,32.8-77.5C448,131.3,399.9,83,340.8,83L340.8,83z"/>
-</svg>
+
+  <!-- template for the heart shape -->
+  <svg width="1000" height="800">
+    <path id="heart" opacity=0 d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
+    c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
+    c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
+    c21-20.3,32.8-47.9,32.8-77.5C448,131.3,399.9,83,340.8,83L340.8,83z"/>
+  </svg>
+
 </body>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -76,7 +72,7 @@ for (var len = 0; len < pathLength; len += pathLength / num) {
 scale = 2.0
 pointsArray.forEach(function(d) {
   d.x = d.x * scale
-  d.y = d.y * scale
+  d.y = d.y * scale - 100
 })
 console.log(pointsArray)
 
@@ -93,11 +89,12 @@ svg.append("text")
 
 
 svg.append("text")
-  .attr("x", 800)
+  .attr("x", 850)
   .attr("y", 200)
   .attr("font-size", "30px")
   .text("Female")
 
+var centerX = width / 2 + 50, centerY = height / 2 - 50;
 //draw heart path
 svg.append("path")
   .attr("class", "line")
@@ -130,8 +127,8 @@ circles.attr("cx", function(d) {return d.x})
 
 //draw the blue center point, with help to draw the quadratic connection curve
 svg.append("circle")
-  .attr("cx", width / 2)
-  .attr("cy", height / 2)
+  .attr("cx", centerX)
+  .attr("cy", centerY)
   .attr("r", 4)
   .attr("fill", "orange")
 
@@ -187,7 +184,7 @@ function updateConnectionLine(d, male_avg, female_avg) {
         id2 = mappingToVertexId(y, 0, 100)
       console.log("id1: " + id1 + " " + "id2: " + id2)
       connection_path.moveTo(pointsArray[mappingToPointIndex("boy", id1)].x, pointsArray[mappingToPointIndex("boy", id1)].y)
-      connection_path.quadraticCurveTo(width / 2, height / 2, 
+      connection_path.quadraticCurveTo(centerX, centerY, 
         pointsArray[mappingToPointIndex("girl", id2)].x, pointsArray[mappingToPointIndex("girl", id2)].y)
       return connection_path.toString();
     })
