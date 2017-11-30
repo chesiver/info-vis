@@ -20,6 +20,7 @@ div.tooltip {
     padding: 2px;       
     font: 12px sans-serif;    
     background: lightsteelblue; 
+    /*background-color: rgba(0,0,0,0.0);*/
     border: 0px;    
     border-radius: 8px;     
     pointer-events: none;     
@@ -109,7 +110,7 @@ var div = d3.select("body").append("div")
     .attr("class", "tooltip")       
     .style("opacity", 0);
 
-// mapping from [0, num / 2] -> [0, 100]
+// mapping from [0, num / 2 - 1] -> [0, 100]
 var x = d3.scaleLinear()
     .domain([0, num / 2 - 1])
     .range([0, 100]);
@@ -123,6 +124,9 @@ circles.attr("cx", function(d) {return d.x})
   .attr("fill", function(d, i) {
     if (i < num / 2) return "red";
     else return "blue"
+  })
+  .attr("id", function(d, i) {
+    return "circle_points" + i;
   })
   .attr("opacity", "0.5")
 
@@ -146,10 +150,6 @@ function mappingToVertexId(d, low, high) {
   return Math.floor((d - low) / (high - low) * (num / 2 - 1))
 }
 
-function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
-}
-
 function mappingAttribute(name) {
   switch (name) {
     case 'attractive': return 'attr1_1'
@@ -162,12 +162,11 @@ function updateConnectionLine(d, male_avg, female_avg) {
   svg.selectAll("path").data(d).enter().append("path")
     .attr('class', 'link')
     .attr("fill", "none")
-    .attr("stroke", "#000")
+    .attr("stroke", "grey")
     .attr("stroke-width", "0.5px")
-    .attr("opacity", "0.3")
+    .attr("opacity", "0.1")
     .attr("id1", function(d, i) {
       var x = male_avg[d['iid']]
-      if (!isNumeric(x)) return null;
       var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100))
       return id1
     })
@@ -181,9 +180,7 @@ function updateConnectionLine(d, male_avg, female_avg) {
       var connection_path = d3.path()
       var x = male_avg[d['iid']], y = female_avg[d['pid']]
       if (!isNumeric(x) || !isNumeric(y)) return null;
-      var id1 = mappingToVertexId(x, 0, 100), 
-        id2 = mappingToVertexId(y, 0, 100)
-      console.log("id1: " + id1 + " " + "id2: " + id2)
+      var id1 = mappingToVertexId(x, 0, 100), id2 = mappingToVertexId(y, 0, 100)
       connection_path.moveTo(pointsArray[mappingToPointIndex("boy", id1)].x, pointsArray[mappingToPointIndex("boy", id1)].y)
       connection_path.quadraticCurveTo(centerX, centerY, 
         pointsArray[mappingToPointIndex("girl", id2)].x, pointsArray[mappingToPointIndex("girl", id2)].y)
@@ -191,25 +188,40 @@ function updateConnectionLine(d, male_avg, female_avg) {
     })
 }
 
+function updateTip(i) {
+  var circle = d3.select("#circle_points" + i);
+  var cx = circle.attr("cx"), cy = circle.attr("cy")
+  update_tip = d3.select("body").append("div") 
+    .attr("class", "tooltip")  
+    .attr("id", "oppositeTip" + i)     
+    .style("opacity", 1.0)
+  update_tip.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+    .style("left", cx + "px")
+    .style("top", (cy - 15) + "px")
+    .style("font-size", "15px")
+}
 
 d3.csv("/data/Speed Dating Data.csv", function(data) {
   console.log(data)
 
   male_data = data.filter(row => row['match'] == '1').filter(row => row['gender'] == '1')
-  female_avg_attr1_1 = getAveragePeerScore(data, '0', 'attr1_1', '1')
-  male_avg_attr1_1 = getAveragePeerScore(data, '1', 'attr1_1', '1')
+  male_avg_attr1_1 = getAveragePeerScore(data, '1', 'attr1_1')
+  female_avg_attr1_1 = getAveragePeerScore(data, '0', 'attr1_1')
 
   d3.select('#attribute')
     .on("change", function () {
       var sect = document.getElementById("attribute");
       var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
-      console.log("attribute: " + attribute)
-      female_avg = getAveragePeerScore(data, '0', attribute, '1')
-      male_avg = getAveragePeerScore(data, '1', attribute, '1')
-      updateConnectionLine(male_data.slice(0, 64), male_avg, female_avg)
+      female_avg = getAveragePeerScore(data, '0', attribute)
+      male_avg = getAveragePeerScore(data, '1', attribute)
+      updateConnectionLine(male_data, male_avg, female_avg)
   });
 
-  updateConnectionLine(male_data.slice(0, 64), male_avg_attr1_1, female_avg_attr1_1)
+  console.log("test")
+  male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
+  female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
+
+  updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
 
   circles.on("mouseover", function(d, i) {
     d3.select(this)
@@ -224,14 +236,34 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
          .style("font-size", "15px")
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
-      .attr("stroke-width", "2.5px")
-      .attr("stroke", "purple")
+      .attr("stroke-width", "3.0px")
+      .attr("stroke", "green")
       .attr("opacity", "0.8")
+      var score = i;
+      if (score in female_score_mapping) {
+        opposite_scores = female_score_mapping[score]
+        opposite_scores.sort()
+        for (var j = 0; j < opposite_scores.length; ++j) {
+          if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
+          var p = num - 1 - opposite_scores[j]
+          updateTip(p)
+        }
+      }
     }
     else {
       d3.selectAll("[id1='" + i + "']").attr("stroke-width", "2.5px")
-      .attr("stroke", "purple")
+      .attr("stroke", "green")
       .attr("opacity", "0.8")
+      var score = num - 1 - i;
+      if (score in male_score_mapping) {
+        opposite_scores = male_score_mapping[score]
+        opposite_scores.sort()
+        for (var j = 0; j < opposite_scores.length; ++j) {
+          if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
+          var p = opposite_scores[j]
+          updateTip(p)
+        }
+      }
     }
   })
   .on("mouseout", function(d, i) {
@@ -244,14 +276,30 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
         .attr("stroke-width", "0.5px")
-        .attr("stroke", "black")
+        .attr("stroke", "grey")
         .attr("opacity", "0.3")
+      var score = i;
+      if (score in female_score_mapping) {
+        opposite_scores = female_score_mapping[score]
+        for (var j = 0; j < opposite_scores.length; ++j) {
+          var p = num - 1 - opposite_scores[j]
+          d3.select("#oppositeTip" + p).remove()
+        }
+      }
     }
     else {
       d3.selectAll("[id1='" + i + "']")
         .attr("stroke-width", "0.5px")
-        .attr("stroke", "black")
+        .attr("stroke", "grey")
         .attr("opacity", "0.3")
+      var score = num - 1 - i;
+      if (score in male_score_mapping) {
+        opposite_scores = male_score_mapping[score]
+        for (var j = 0; j < opposite_scores.length; ++j) {
+          var p = opposite_scores[j]
+          d3.select("#oppositeTip" + p).remove()
+        }
+      }
     }
   })
 })
