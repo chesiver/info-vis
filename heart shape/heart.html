@@ -16,7 +16,7 @@ div.tooltip {
     position: absolute;     
     text-align: center;     
     width: 120px;          
-    height: 25px;         
+    height: 20px;         
     padding: 2px;       
     font: 12px sans-serif;    
     background: lightsteelblue; 
@@ -207,6 +207,16 @@ function updateTip(i) {
     .style("font-size", "15px")
 }
 
+function updateTipsOnOtherSide(opposite_scores, gender) {
+  var last = -10;
+  for (var i = 0; i < opposite_scores.length; ++i) {
+    if (opposite_scores[i] - last < 10) continue; 
+    var p = gender == '0'? num - 1 - opposite_scores[i]: opposite_scores[i];
+    updateTip(p)
+    last = opposite_scores[i];
+  }
+}
+
 d3.csv("/data/Speed Dating Data.csv", function(data) {
   console.log(data)
 
@@ -231,6 +241,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   
   male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
   female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
+  // console.log(male_score_mapping)
 
   updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
 
@@ -253,12 +264,13 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       var score = i;
       if (score in female_score_mapping) {
         opposite_scores = female_score_mapping[score]
-        opposite_scores.sort()
-        for (var j = 0; j < opposite_scores.length; ++j) {
-          if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
-          var p = num - 1 - opposite_scores[j]
-          updateTip(p)
-        }
+        opposite_scores.sort(function(e1, e2) { return e1 - e2; })
+        updateTipsOnOtherSide(opposite_scores, '0')
+        // for (var j = 0; j < opposite_scores.length; ++j) {
+        //   if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
+        //   var p = num - 1 - opposite_scores[j]
+        //   updateTip(p)
+        // }
       }
     }
     else {
@@ -268,12 +280,15 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       var score = num - 1 - i;
       if (score in male_score_mapping) {
         opposite_scores = male_score_mapping[score]
-        opposite_scores.sort()
-        for (var j = 0; j < opposite_scores.length; ++j) {
-          if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
-          var p = opposite_scores[j]
-          updateTip(p)
-        }
+        console.log(opposite_scores)
+        opposite_scores.sort(function(e1, e2) { return e1 - e2; })
+        console.log(opposite_scores)
+        updateTipsOnOtherSide(opposite_scores, '1')
+        // for (var j = 0; j < opposite_scores.length; ++j) {
+        //   if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
+        //   var p = opposite_scores[j]
+        //   updateTip(p)
+        // }
       }
     }
   })
