@@ -192,6 +192,30 @@ function updateConnectionLine(d, male_avg, female_avg) {
         pointsArray[mappingToPointIndex("girl", id2)].x, pointsArray[mappingToPointIndex("girl", id2)].y)
       return connection_path.toString();
     })
+    .on("mouseover", function(d, i) {
+      d3.select(this)
+        .attr("stroke-width", "3.0px")
+        .attr("stroke", "green")
+        .attr("opacity", "0.8")
+      var x = male_avg[d['iid']], y = female_avg[d['pid']]
+      if (!isNumeric(x) || !isNumeric(y)) return null;
+      var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100));
+      var id2 = mappingToPointIndex("girl", mappingToVertexId(y, 0, 100));
+      updateTip(id1);
+      updateTip(id2);
+    })
+    .on("mouseout", function(d, i) {
+      d3.select(this)
+        .attr("stroke-width", "0.5px")
+        .attr("stroke", "grey")
+        .attr("opacity", "0.3")
+        var x = male_avg[d['iid']], y = female_avg[d['pid']]
+      if (!isNumeric(x) || !isNumeric(y)) return null;
+      var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100))
+      var id2 = mappingToPointIndex("girl", mappingToVertexId(y, 0, 100))
+      d3.select("#oppositeTip" + id1).remove()
+      d3.select("#oppositeTip" + id2).remove()
+    })
 }
 
 function updateTip(i) {
@@ -199,7 +223,7 @@ function updateTip(i) {
   var cx = circle.attr("cx"), cy = circle.attr("cy")
   update_tip = d3.select("body").append("div") 
     .attr("class", "tooltip")  
-    .attr("id", "oppositeTip" + i)     
+    .attr("id", "oppositeTip" + i)   
     .style("opacity", 1.0)
   update_tip.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
     .style("left", cx + "px")
@@ -228,11 +252,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     .on("change", function () {
       var sect = document.getElementById("attribute");
       var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
-      console.log(attribute)
       female_avg = getAveragePeerScore(data, '0', attribute)
       male_avg = getAveragePeerScore(data, '1', attribute)
-      console.log(female_avg)
-      console.log(male_avg)
       male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
       female_score_mapping = constructMappingScore(data, '0', female_avg, male_avg)
       updateConnectionLine(male_data, male_avg, female_avg)
@@ -241,7 +262,6 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   
   male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
   female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
-  // console.log(male_score_mapping)
 
   updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
 
@@ -266,11 +286,6 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
         opposite_scores = female_score_mapping[score]
         opposite_scores.sort(function(e1, e2) { return e1 - e2; })
         updateTipsOnOtherSide(opposite_scores, '0')
-        // for (var j = 0; j < opposite_scores.length; ++j) {
-        //   if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
-        //   var p = num - 1 - opposite_scores[j]
-        //   updateTip(p)
-        // }
       }
     }
     else {
@@ -280,15 +295,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       var score = num - 1 - i;
       if (score in male_score_mapping) {
         opposite_scores = male_score_mapping[score]
-        console.log(opposite_scores)
         opposite_scores.sort(function(e1, e2) { return e1 - e2; })
-        console.log(opposite_scores)
         updateTipsOnOtherSide(opposite_scores, '1')
-        // for (var j = 0; j < opposite_scores.length; ++j) {
-        //   if (j > 0 && opposite_scores[j] - opposite_scores[j - 1] < 5) continue;
-        //   var p = opposite_scores[j]
-        //   updateTip(p)
-        // }
       }
     }
   })
