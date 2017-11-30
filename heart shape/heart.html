@@ -34,6 +34,9 @@ div.tooltip {
     <select id="attribute" width="auto">
       <option value="attractive">Attractive</option>
       <option value="sincere">Sincere</option>
+      <option value="intelligent">Intelligent</option>
+      <option value="fun">Fun</option>
+      <option value="ambitious">Ambitious</option>
     </select>
   </div>
 
@@ -147,13 +150,16 @@ function mappingToPointIndex(group, id) {
 }
 
 function mappingToVertexId(d, low, high) {
-  return Math.floor((d - low) / (high - low) * (num / 2 - 1))
+  return Math.round((d - low) / (high - low) * (num / 2 - 1))
 }
 
 function mappingAttribute(name) {
   switch (name) {
-    case 'attractive': return 'attr1_1'
-    case 'sincere': return 'sinc1_1'
+    case "attractive": return "attr1_1";
+    case "sincere": return "sinc1_1";
+    case "intelligent": return "intel1_1";
+    case "fun": return "fun1_1";
+    case "ambitious": return "amb1_1";
   }
 }
 
@@ -212,12 +218,17 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     .on("change", function () {
       var sect = document.getElementById("attribute");
       var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
+      console.log(attribute)
       female_avg = getAveragePeerScore(data, '0', attribute)
       male_avg = getAveragePeerScore(data, '1', attribute)
+      console.log(female_avg)
+      console.log(male_avg)
+      male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
+      female_score_mapping = constructMappingScore(data, '0', female_avg, male_avg)
       updateConnectionLine(male_data, male_avg, female_avg)
   });
 
-  console.log("test")
+  
   male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
   female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
 
@@ -232,7 +243,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
          .style("opacity", 0.8);
        div.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
          .style("left", d3.event.pageX + "px")
-         .style("top", (d3.event.pageY - 28) + "px")
+         .style("top", (d3.event.pageY - 20) + "px")
          .style("font-size", "15px")
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")

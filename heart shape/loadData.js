@@ -3,6 +3,7 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+//get average score of certain attribute
 function getAveragePeerScore(data, gender, attr) {
 	pairs_by_iid = d3.nest().key(function(d) { return d['iid'] })
 		.entries(data.filter(row => row['gender'] == gender))
@@ -17,7 +18,7 @@ function getAveragePeerScore(data, gender, attr) {
 		.filter(e => isNumeric(e['value']))
 	res = {}
 	for (var i = 0; i < pairs_by_iid_avg_attr.length; ++i) {
-		res[pairs_by_iid_avg_attr[i]['key']] = Math.floor(pairs_by_iid_avg_attr[i]['value'])
+		res[pairs_by_iid_avg_attr[i]['key']] = Math.round(pairs_by_iid_avg_attr[i]['value'])
 	}
 	return res
 }
