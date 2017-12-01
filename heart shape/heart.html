@@ -61,7 +61,6 @@ div.tooltip {
 </style>
 
 <body>
-
   <div id="mainselection">
     <select id="attribute" width="auto">
       <option value="attractive">Attractive</option>
@@ -92,8 +91,6 @@ div.tooltip {
 
 </body>
 
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-path.v1.min.js"></script>
 <script src="/heart shape/path-data-polyfill.js"></script>
@@ -131,17 +128,16 @@ var valueline = d3.line()
     .y(function(d) { return d.y; })
 
 svg.append("text")
-  .attr("x", 100)
+  .attr("x", 1000)
   .attr("y", 100)
   .attr("font-size", "30px")
-  .text("")
-
+  .text("Men");
 
 svg.append("text")
   .attr("x", 850)
   .attr("y", 200)
   .attr("font-size", "30px")
-  .text("")
+  .text("Women");
 
 var centerX = width / 2 , centerY = height / 2 - 100;
 //draw heart path
@@ -178,11 +174,11 @@ circles.attr("cx", function(d) {return d.x})
   .attr("opacity", "0.5")
 
 //draw the blue center point, with help to draw the quadratic connection curve
-svg.append("circle")
-  .attr("cx", centerX)
-  .attr("cy", centerY)
-  .attr("r", 4)
-  .attr("fill", "orange")
+// svg.append("circle")
+//   .attr("cx", centerX)
+//   .attr("cy", centerY)
+//   .attr("r", 4)
+//   .attr("fill", "orange")
 
 
 //the heart needs to be divided to 2 parts, so the point index needs a mapping
@@ -311,7 +307,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       var sect = document.getElementById("attribute");
       var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
 
-      updateChart(attribute);
+      updateChart(sect.options[sect.selectedIndex].value);
 
       female_avg = getAveragePeerScore(data, '0', attribute)
       male_avg = getAveragePeerScore(data, '1', attribute)
@@ -399,6 +395,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   })
 })
 
+//console.log(d3.schemeCategory10);
 
 //////////////////////////////////////////////////////////////////
 
@@ -407,16 +404,15 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
  updateChart(name);
 
 
-
 function updateChart(attribute){
 
-chart = d3.select('.chart');
-console.log(chart);
+  chart = d3.select('.chart');
+  //console.log(chart);
 
-d3.select('.chart').selectAll("*").remove();
-//  chart.selectAll("*").remove();
+  d3.select('.chart').selectAll("*").remove();
+  //  chart.selectAll("*").remove();
 
-console.log(chart);
+  // console.log(attribute);
 
 
   var data = {};
@@ -428,11 +424,11 @@ console.log(chart);
       series: [
         {
           label: 'Expectation',
-          values: [4, 8]
+          values: [27, 41]
         },
         {
           label: 'Reality',
-          values: [12, 19]
+          values: [41, 36]
         },]
     };  
   }
@@ -444,11 +440,11 @@ console.log(chart);
       series: [
         {
           label: 'Expectation',
-          values: [23, 28]
+          values: [31, 34]
         },
         {
           label: 'Reality',
-          values: [12, 14]
+          values: [23, 25]
         },]
     };
   }
@@ -460,11 +456,11 @@ console.log(chart);
       series: [
         {
           label: 'Expectation',
-          values: [12, 19]
+          values: [32, 28]
         },
         {
           label: 'Reality',
-          values: [21, 23]
+          values: [26, 24]
         },]
     };
   }
@@ -476,11 +472,11 @@ console.log(chart);
       series: [
         {
           label: 'Expectation',
-          values: [18, 21]
+          values: [21, 23]
         },
         {
           label: 'Reality',
-          values: [17, 19]
+          values: [33, 20]
         },]
     };
   }
@@ -492,11 +488,11 @@ console.log(chart);
       series: [
         {
           label: 'Expectation',
-          values: [7, 8]
+          values: [14, 26]
         },
         {
           label: 'Reality',
-          values: [6, 5]
+          values: [12, 17]
         },]
     };
   }
@@ -504,10 +500,10 @@ console.log(chart);
 
 
 
-    var chartWidth       = 200,
-    barHeight        = 20,
+    var chartWidth   = 200,
+    barHeight        = 40,
     groupHeight      = barHeight * data.series.length,
-    gapBetweenGroups = 10,
+    gapBetweenGroups = 40,
     spaceForLabels   = 150,
     spaceForLegend   = 150;
 
@@ -520,21 +516,22 @@ console.log(chart);
     }
 
     // Color scale
-    var color = d3.scale.category10();
+    var color = d3.scaleOrdinal(["#0066ff", "#ff6666"]);;
     var chartHeight = barHeight * zippedData.length + gapBetweenGroups * data.labels.length;
 
-    var x = d3.scale.linear()
+    var x = d3.scaleLinear()
         .domain([0, d3.max(zippedData)])
         .range([0, chartWidth]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
         .range([chartHeight + gapBetweenGroups, 0]);
 
-    var yAxis = d3.svg.axis()
+//    var yAxis = d3.axisLeft(yRange);
+
+    var yAxis = d3.axisLeft()
         .scale(y)
         .tickFormat('')
-        .tickSize(0)
-        .orient("left");
+        .tickSize(0);
 
     // Specify the chart area and dimensions
     var chart = d3.select('.chart')
@@ -610,8 +607,6 @@ console.log(chart);
         .attr('y', legendRectSize - legendSpacing)
         .text(function (d) { return d.label; });
 }
-
-
 
 
 
