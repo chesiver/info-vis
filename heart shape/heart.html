@@ -118,7 +118,7 @@ for (var len = 0; len < pathLength; len += pathLength / num) {
 scale = 1.75
 pointsArray.forEach(function(d) {
   d.x = d.x * scale
-  d.y = d.y * scale - 100
+  d.y = d.y * scale - 150
 })
 //console.log(pointsArray)
 
@@ -139,7 +139,7 @@ svg.append("text")
   .attr("font-size", "30px")
   .text("Women");
 
-var centerX = width / 2 , centerY = height / 2 - 100;
+var centerX = width / 2 + 30, centerY = height / 2 - 150;
 //draw heart path
 svg.append("path")
   .attr("class", "line")
@@ -265,9 +265,9 @@ function updateTip(i) {
     .attr("class", "tooltip")  
     .attr("id", "oppositeTip" + i)   
     .style("opacity", 1.0)
-  update_tip.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
-    .style("left", cx + "px")
-    .style("top", (cy - 15) + "px")
+  update_tip.html("" + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+    .style("left", (cx) + "px")
+    .style("top", (cy + 100) + "px")
     .style("font-size", "15px")
 }
 
@@ -322,17 +322,18 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
 
   updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
 
-  circles.on("mouseover", function(d, i) {
+  circles.on("mouseenter", function(d, i) {
     d3.select(this)
       .attr("fill", i < num / 2? "orange": "green")
       .attr("r", 10)
-    div.transition()
-         .duration(200)
-         .style("opacity", 0.8);
-       div.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+    // div.transition()
+    //      .duration(200)
+    //      .style("opacity", 0.8);
+       div.html("" + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
          .style("left", d3.event.pageX + "px")
          .style("top", (d3.event.pageY - 20) + "px")
          .style("font-size", "15px")
+         .style("opacity", 0.8);
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
       .attr("stroke-width", "3.0px")
@@ -361,20 +362,21 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     d3.select(this)
       .attr("fill", i < num / 2? "red": "blue")
       .attr("r", 4)
-    div.transition()
-         .duration(500)
-         .style("opacity", 0);
+    // div.transition()
+    //      .duration(500)
+    //      .style("opacity", 0);
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
         .attr("stroke-width", "0.5px")
         .attr("stroke", "grey")
         .attr("opacity", "0.3")
       var score = i;
+      // d3.selectAll(".tooltip").remove()
       if (score in female_score_mapping) {
         opposite_scores = female_score_mapping[score]
         for (var j = 0; j < opposite_scores.length; ++j) {
           var p = num - 1 - opposite_scores[j]
-          d3.select("#oppositeTip" + p).remove()
+          d3.select("^=oppositeTip_").remove()
         }
       }
     }
@@ -384,6 +386,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
         .attr("stroke", "grey")
         .attr("opacity", "0.3")
       var score = num - 1 - i;
+      // d3.selectAll(".tooltip").remove()
       if (score in male_score_mapping) {
         opposite_scores = male_score_mapping[score]
         for (var j = 0; j < opposite_scores.length; ++j) {
@@ -509,7 +512,7 @@ function updateChart(attribute){
 
     // Zip the series data together (first values, second values, etc.)
     var zippedData = [];
-    for (var i=0; i<data.labels.length; i++) {
+    for (var i=0; i< data.labels.length; i++) {
       for (var j=0; j<data.series.length; j++) {
         zippedData.push(data.series[j].values[i]);
       }
@@ -526,7 +529,6 @@ function updateChart(attribute){
     var y = d3.scaleLinear()
         .range([chartHeight + gapBetweenGroups, 0]);
 
-//    var yAxis = d3.axisLeft(yRange);
 
     var yAxis = d3.axisLeft()
         .scale(y)
