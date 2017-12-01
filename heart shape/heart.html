@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+  <link rel="stylesheet" href="select.css">
+</head>
+
+<style>
+body {
+  font: 10px sans-serif;
+}
+
+div.tooltip { 
+    font-family: 'Roboto';
+    pointer-events: none !important;
+    position: absolute;     
+    text-align: center;     
+    width: 120px;          
+    height: 20px;         
+    padding: 2px;       
+    font: 12px sans-serif;    
+    background: lightsteelblue; 
+    /*background-color: rgba(0,0,0,0.0);*/
+    border: 0px;    
+    border-radius: 8px;     
+    pointer-events: none;     
+}
+
+
+.chart .legend {
+  fill: black;
+  font: 14px sans-serif;
+  text-anchor: start;
+  font-size: 12px;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+.chart .label {
+  fill: black;
+  font: 14px sans-serif;
+  text-anchor: end;
+}
+
+.bar:hover {
+  fill: black;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+
+</style>
+
+<body>
+
+  <div id="mainselection">
+    <select id="attribute" width="auto">
+      <option value="attractive">Attractive</option>
+      <option value="sincere">Sincere</option>
+      <option value="intelligent">Intelligent</option>
+      <option value="fun">Fun</option>
+      <option value="ambitious">Ambitious</option>
+    </select>
+  </div>
+
+  <!-- template for the heart shape -->
+
+<div position:relative; width = "100%" height = "400px">
+  <div width = "70%" height = "800px" style="float:left">
+      <svg width="800" height="800">
+    <path id="heart" opacity=0 d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
+    c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
+    c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
+    c21-20.3,32.8-47.9,32.8-77.5C448,131.3,399.9,83,340.8,83L340.8,83z"/>
+  </svg>
+  </div >
+  <div width = "100px" height = "500px" style="float:right; margin-top:100px;">
+    <svg class="chart"></svg>
+  </div>
+ </div>
+
+
+
+</body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-path.v1.min.js"></script>
+<script src="/heart shape/path-data-polyfill.js"></script>
+<script src="/heart shape/loadData.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height")
+
+//console.log("width " + width + " " + "height " + height)
+var pathLength = d3.selectAll('#heart').node().getTotalLength() / 2.58
+//console.log("pathLength " + pathLength)
+var pointsArray = [];
+var num = 202
+
+//SVG API, get point with defind length from end point
+//Evenly divided the curve, points serve as scales
+for (var len = 0; len < pathLength; len += pathLength / num) {
+  var pt = d3.selectAll('#heart').node().getPointAtLength(len)
+  pointsArray.push({"x": pt.x, "y": pt.y})
+} 
+
+//Original heart shape is too small, here do a transformation
+scale = 1.75
+pointsArray.forEach(function(d) {
+  d.x = d.x * scale
+  d.y = d.y * scale - 100
+})
+//console.log(pointsArray)
+
+//draw the scaling red points
+var valueline = d3.line()
+    .x(function(d) { return d.x; })
+    .y(function(d) { return d.y; })
+
+svg.append("text")
+  .attr("x", 100)
+  .attr("y", 100)
+  .attr("font-size", "30px")
+  .text("")
+
+
+svg.append("text")
+  .attr("x", 850)
+  .attr("y", 200)
+  .attr("font-size", "30px")
+  .text("")
+
+var centerX = width / 2 , centerY = height / 2 - 100;
+//draw heart path
+svg.append("path")
+  .attr("class", "line")
+  .attr("d", valueline(pointsArray))
+  .attr("fill", "none")
+  .attr("stroke", "#000")
+  .attr("stroke-width", "2px")
+  .attr("opacity", "0.3")
+
+var div = d3.select("body").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
+
+// mapping from [0, num / 2 - 1] -> [0, 100]
+var x = d3.scaleLinear()
+    .domain([0, num / 2 - 1])
+    .range([0, 100]);
+
+//draw heart cirlces on the path
+circles = svg.selectAll("circle").data(pointsArray)
+  .enter().append("circle")
+circles.attr("cx", function(d) {return d.x})
+  .attr("cy", function(d) {return d.y})
+  .attr("r", 4)
+  .attr("fill", function(d, i) {
+    if (i < num / 2) return "red";
+    else return "blue"
+  })
+  .attr("id", function(d, i) {
+    return "circle_points" + i;
+  })
+  .attr("opacity", "0.5")
+
+//draw the blue center point, with help to draw the quadratic connection curve
+svg.append("circle")
+  .attr("cx", centerX)
+  .attr("cy", centerY)
+  .attr("r", 4)
+  .attr("fill", "orange")
+
+
+//the heart needs to be divided to 2 parts, so the point index needs a mapping
+function mappingToPointIndex(group, id) {
+  switch (group) {
+    case "boy": return num - 1 - id;
+    case "girl": return id;
+  }
+}
+
+function mappingToVertexId(d, low, high) {
+  return Math.round((d - low) / (high - low) * (num / 2 - 1))
+}
+
+function mappingAttribute(name) {
+  switch (name) {
+    case "attractive": return "attr1_1";
+    case "sincere": return "sinc1_1";
+    case "intelligent": return "intel1_1";
+    case "fun": return "fun1_1";
+    case "ambitious": return "amb1_1";
+  }
+}
+
+function updateConnectionLine(d, male_avg, female_avg, data) {
+  svg.selectAll("[class=link]").remove()
+  svg.selectAll("path").data(d).enter().append("path")
+    .attr('class', 'link')
+    .attr("fill", "none")
+    .attr("stroke", "grey")
+    .attr("stroke-width", "0.5px")
+    .attr("opacity", "0.1")
+    .attr("id1", function(d, i) {
+      var x = male_avg[d['iid']]
+      var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100))
+      return id1
+    })
+    .attr("id2", function(d, i) {
+      var y = female_avg[d['pid']]
+      if (!isNumeric(y)) return null; 
+      var id2 = mappingToPointIndex("girl", mappingToVertexId(y, 0, 100))
+      return id2
+    })
+    .attr("d", function(d, i) {
+      var connection_path = d3.path()
+      var x = male_avg[d['iid']], y = female_avg[d['pid']]
+      if (!isNumeric(x) || !isNumeric(y)) return null;
+      var id1 = mappingToVertexId(x, 0, 100), id2 = mappingToVertexId(y, 0, 100)
+      connection_path.moveTo(pointsArray[mappingToPointIndex("boy", id1)].x, pointsArray[mappingToPointIndex("boy", id1)].y)
+      connection_path.quadraticCurveTo(centerX, centerY, 
+        pointsArray[mappingToPointIndex("girl", id2)].x, pointsArray[mappingToPointIndex("girl", id2)].y)
+      return connection_path.toString();
+    })
+    .on("mouseover", function(d, i) {
+      d3.select(this)
+        .attr("stroke-width", "3.0px")
+        .attr("stroke", "green")
+        .attr("opacity", "0.8")
+      var x = male_avg[d['iid']], y = female_avg[d['pid']]
+      if (!isNumeric(x) || !isNumeric(y)) return null;
+      var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100));
+      var id2 = mappingToPointIndex("girl", mappingToVertexId(y, 0, 100));
+      updateTip(id1);
+      updateTip(id2);
+    })
+    .on("mouseout", function(d, i) {
+      d3.select(this)
+        .attr("stroke-width", "0.5px")
+        .attr("stroke", "grey")
+        .attr("opacity", "0.3")
+        var x = male_avg[d['iid']], y = female_avg[d['pid']]
+      if (!isNumeric(x) || !isNumeric(y)) return null;
+      var id1 = mappingToPointIndex("boy", mappingToVertexId(x, 0, 100))
+      var id2 = mappingToPointIndex("girl", mappingToVertexId(y, 0, 100))
+      d3.select("#oppositeTip" + id1).remove()
+      d3.select("#oppositeTip" + id2).remove()
+    })
+}
+
+function updateTip(i) {
+  var circle = d3.select("#circle_points" + i);
+  var cx = circle.attr("cx"), cy = circle.attr("cy")
+  update_tip = d3.select("body").append("div") 
+    .attr("class", "tooltip")  
+    .attr("id", "oppositeTip" + i)   
+    .style("opacity", 1.0)
+  update_tip.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+    .style("left", cx + "px")
+    .style("top", (cy - 15) + "px")
+    .style("font-size", "15px")
+}
+
+function updateTipsOnOtherSide(opposite_scores, gender) {
+  var last = -10;
+  for (var i = 0; i < opposite_scores.length; ++i) {
+    if (opposite_scores[i] - last < 10) continue; 
+    var p = gender == '0'? num - 1 - opposite_scores[i]: opposite_scores[i];
+    updateTip(p)
+    last = opposite_scores[i];
+  }
+}
+
+
+
+
+function mappingBarAttribute(name) {
+  switch (name) {
+    case "attractive": return ;
+    case "sincere": return ;
+    case "intelligent": return ;
+    case "fun": return ;
+    case "ambitious": return ;
+  }
+}
+
+
+d3.csv("/data/Speed Dating Data.csv", function(data) {
+//  console.log(data)
+
+  male_data = data.filter(row => row['match'] == '1').filter(row => row['gender'] == '1')
+  male_avg_attr1_1 = getAveragePeerScore(data, '1', 'attr1_1')
+  female_avg_attr1_1 = getAveragePeerScore(data, '0', 'attr1_1')
+
+  d3.select('#attribute')
+    .on("change", function () {
+      var sect = document.getElementById("attribute");
+      var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
+
+      updateChart(attribute);
+
+      female_avg = getAveragePeerScore(data, '0', attribute)
+      male_avg = getAveragePeerScore(data, '1', attribute)
+      male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
+      female_score_mapping = constructMappingScore(data, '0', female_avg, male_avg)
+      updateConnectionLine(male_data, male_avg, female_avg, data)
+  });
+
+  
+  male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
+  female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
+
+  updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
+
+  circles.on("mouseover", function(d, i) {
+    d3.select(this)
+      .attr("fill", i < num / 2? "orange": "green")
+      .attr("r", 10)
+    div.transition()
+         .duration(200)
+         .style("opacity", 0.8);
+       div.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+         .style("left", d3.event.pageX + "px")
+         .style("top", (d3.event.pageY - 20) + "px")
+         .style("font-size", "15px")
+    if (i < num / 2) {
+      d3.selectAll("[id2='" + i + "']")
+      .attr("stroke-width", "3.0px")
+      .attr("stroke", "green")
+      .attr("opacity", "0.8")
+      var score = i;
+      if (score in female_score_mapping) {
+        opposite_scores = female_score_mapping[score]
+        opposite_scores.sort(function(e1, e2) { return e1 - e2; })
+        updateTipsOnOtherSide(opposite_scores, '0')
+      }
+    }
+    else {
+      d3.selectAll("[id1='" + i + "']").attr("stroke-width", "2.5px")
+      .attr("stroke", "green")
+      .attr("opacity", "0.8")
+      var score = num - 1 - i;
+      if (score in male_score_mapping) {
+        opposite_scores = male_score_mapping[score]
+        opposite_scores.sort(function(e1, e2) { return e1 - e2; })
+        updateTipsOnOtherSide(opposite_scores, '1')
+      }
+    }
+  })
+  .on("mouseout", function(d, i) {
+    d3.select(this)
+      .attr("fill", i < num / 2? "red": "blue")
+      .attr("r", 4)
+    div.transition()
+         .duration(500)
+         .style("opacity", 0);
+    if (i < num / 2) {
+      d3.selectAll("[id2='" + i + "']")
+        .attr("stroke-width", "0.5px")
+        .attr("stroke", "grey")
+        .attr("opacity", "0.3")
+      var score = i;
+      if (score in female_score_mapping) {
+        opposite_scores = female_score_mapping[score]
+        for (var j = 0; j < opposite_scores.length; ++j) {
+          var p = num - 1 - opposite_scores[j]
+          d3.select("#oppositeTip" + p).remove()
+        }
+      }
+    }
+    else {
+      d3.selectAll("[id1='" + i + "']")
+        .attr("stroke-width", "0.5px")
+        .attr("stroke", "grey")
+        .attr("opacity", "0.3")
+      var score = num - 1 - i;
+      if (score in male_score_mapping) {
+        opposite_scores = male_score_mapping[score]
+        for (var j = 0; j < opposite_scores.length; ++j) {
+          var p = opposite_scores[j]
+          d3.select("#oppositeTip" + p).remove()
+        }
+      }
+    }
+  })
+})
+
+
+//////////////////////////////////////////////////////////////////
+
+ var name = "attractive"
+
+ updateChart(name);
+
+
+
+function updateChart(attribute){
+
+chart = d3.select('.chart');
+console.log(chart);
+
+d3.select('.chart').selectAll("*").remove();
+//  chart.selectAll("*").remove();
+
+console.log(chart);
+
+
+  var data = {};
+  if(attribute == "attractive"){
+      data = {
+      labels: [
+        'Men', 'Women'
+      ],
+      series: [
+        {
+          label: 'Expectation',
+          values: [4, 8]
+        },
+        {
+          label: 'Reality',
+          values: [12, 19]
+        },]
+    };  
+  }
+  else if(attribute == "sincere"){
+    data = {
+      labels: [
+        'Men', 'Women'
+      ],
+      series: [
+        {
+          label: 'Expectation',
+          values: [23, 28]
+        },
+        {
+          label: 'Reality',
+          values: [12, 14]
+        },]
+    };
+  }
+  else if(attribute == "intelligent"){
+    data = {
+      labels: [
+        'Men', 'Women'
+      ],
+      series: [
+        {
+          label: 'Expectation',
+          values: [12, 19]
+        },
+        {
+          label: 'Reality',
+          values: [21, 23]
+        },]
+    };
+  }
+  else if(attribute == "fun"){
+    data = {
+      labels: [
+        'Men', 'Women'
+      ],
+      series: [
+        {
+          label: 'Expectation',
+          values: [18, 21]
+        },
+        {
+          label: 'Reality',
+          values: [17, 19]
+        },]
+    };
+  }
+  else{
+    data = {
+      labels: [
+        'Men', 'Women'
+      ],
+      series: [
+        {
+          label: 'Expectation',
+          values: [7, 8]
+        },
+        {
+          label: 'Reality',
+          values: [6, 5]
+        },]
+    };
+  }
+
+
+
+
+    var chartWidth       = 200,
+    barHeight        = 20,
+    groupHeight      = barHeight * data.series.length,
+    gapBetweenGroups = 10,
+    spaceForLabels   = 150,
+    spaceForLegend   = 150;
+
+    // Zip the series data together (first values, second values, etc.)
+    var zippedData = [];
+    for (var i=0; i<data.labels.length; i++) {
+      for (var j=0; j<data.series.length; j++) {
+        zippedData.push(data.series[j].values[i]);
+      }
+    }
+
+    // Color scale
+    var color = d3.scale.category10();
+    var chartHeight = barHeight * zippedData.length + gapBetweenGroups * data.labels.length;
+
+    var x = d3.scale.linear()
+        .domain([0, d3.max(zippedData)])
+        .range([0, chartWidth]);
+
+    var y = d3.scale.linear()
+        .range([chartHeight + gapBetweenGroups, 0]);
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat('')
+        .tickSize(0)
+        .orient("left");
+
+    // Specify the chart area and dimensions
+    var chart = d3.select('.chart')
+    //    .select(".chart")
+        .attr("width", spaceForLabels + chartWidth + spaceForLegend)
+        .attr("height", chartHeight);
+
+    // Create bars
+    var bar = chart.selectAll("g")
+        .data(zippedData)
+        .enter().append("g")
+        .attr("transform", function(d, i) {
+          return "translate(" + spaceForLabels + "," + (i * barHeight + gapBetweenGroups * (0.5 + Math.floor(i/data.series.length))) + ")";
+        });
+
+    // Create rectangles of the correct width
+    bar.append("rect")
+        .attr("fill", function(d,i) { return color(i % data.series.length); })
+        .attr("class", "bar")
+        .attr("width", x)
+        .attr("height", barHeight - 1);
+
+    // Add text label in bar
+    bar.append("text")
+        .attr("x", function(d) { return x(d) - 3; })
+        .attr("y", barHeight / 2)
+        .attr("fill", "red")
+        .attr("dy", ".35em")
+        .text(function(d) { return d; });
+
+    // Draw labels
+    bar.append("text")
+        .attr("class", "label")
+        .attr("x", function(d) { return - 10; })
+        .attr("y", groupHeight / 2)
+        .attr("dy", ".35em")
+        .text(function(d,i) {
+          if (i % data.series.length === 0)
+            return data.labels[Math.floor(i/data.series.length)];
+          else
+            return ""});
+
+    chart.append("g")
+          .attr("class", "y axis")
+          .attr("transform", "translate(" + spaceForLabels + ", " + -gapBetweenGroups/2 + ")")
+          .call(yAxis);
+
+    // Draw legend
+    var legendRectSize = 18,
+        legendSpacing  = 4;
+
+    var legend = chart.selectAll('.legend')
+        .data(data.series)
+        .enter()
+        .append('g')
+        .attr('transform', function (d, i) {
+            var height = legendRectSize + legendSpacing;
+            var offset = -gapBetweenGroups/2;
+            var horz = spaceForLabels + chartWidth + 40 - legendRectSize;
+            var vert = i * height - offset;
+            return 'translate(' + horz + ',' + vert + ')';
+        });
+
+    legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', function (d, i) { return color(i); })
+        .style('stroke', function (d, i) { return color(i); });
+
+    legend.append('text')
+        .attr('class', 'legend')
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(function (d) { return d.label; });
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+
+</script>
