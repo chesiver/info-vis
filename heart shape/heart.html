@@ -77,6 +77,7 @@ div.tooltip {
 <div position:relative; width = "100%" height = "400px">
   <div width = "70%" height = "800px" style="float:left">
       <svg width="800" height="800">
+  <svg width="1000" height="800">
     <path id="heart" opacity=0 d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
     c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
     c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
@@ -87,7 +88,6 @@ div.tooltip {
     <svg class="chart"></svg>
   </div>
  </div>
-
 
 
 </body>
@@ -118,7 +118,7 @@ for (var len = 0; len < pathLength; len += pathLength / num) {
 } 
 
 //Original heart shape is too small, here do a transformation
-scale = 1.75
+scale = 2.0
 pointsArray.forEach(function(d) {
   d.x = d.x * scale
   d.y = d.y * scale - 100
@@ -132,6 +132,7 @@ var valueline = d3.line()
 
 svg.append("text")
   .attr("x", 100)
+<<<<<<< HEAD
   .attr("y", 100)
   .attr("font-size", "30px")
   .text("")
@@ -141,7 +142,7 @@ svg.append("text")
   .attr("x", 850)
   .attr("y", 200)
   .attr("font-size", "30px")
-  .text("")
+  .text("Male")
 
 var centerX = width / 2 , centerY = height / 2 - 100;
 //draw heart path
@@ -287,7 +288,6 @@ function updateTipsOnOtherSide(opposite_scores, gender) {
 
 
 
-
 function mappingBarAttribute(name) {
   switch (name) {
     case "attractive": return ;
@@ -310,9 +310,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     .on("change", function () {
       var sect = document.getElementById("attribute");
       var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
-
       updateChart(attribute);
-
       female_avg = getAveragePeerScore(data, '0', attribute)
       male_avg = getAveragePeerScore(data, '1', attribute)
       male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
