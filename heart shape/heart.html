@@ -93,8 +93,8 @@ div.tooltip {
 </body>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
 <script src="https://d3js.org/d3-path.v1.min.js"></script>
 <script src="/heart shape/path-data-polyfill.js"></script>
 <script src="/heart shape/loadData.js"></script>
@@ -121,7 +121,7 @@ for (var len = 0; len < pathLength; len += pathLength / num) {
 scale = 1.75
 pointsArray.forEach(function(d) {
   d.x = d.x * scale
-  d.y = d.y * scale - 100
+  d.y = d.y * scale - 150
 })
 //console.log(pointsArray)
 
@@ -143,7 +143,7 @@ svg.append("text")
   .attr("font-size", "30px")
   .text("")
 
-var centerX = width / 2 , centerY = height / 2 - 100;
+var centerX = width / 2 + 30, centerY = height / 2 - 150;
 //draw heart path
 svg.append("path")
   .attr("class", "line")
@@ -269,9 +269,11 @@ function updateTip(i) {
     .attr("class", "tooltip")  
     .attr("id", "oppositeTip" + i)   
     .style("opacity", 1.0)
-  update_tip.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
-    .style("left", cx + "px")
-    .style("top", (cy - 15) + "px")
+  update_tip.html("" + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("left", (cx) + "px")
+    .style("top", (cy + 100) + "px")
     .style("font-size", "15px")
 }
 
@@ -333,7 +335,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     div.transition()
          .duration(200)
          .style("opacity", 0.8);
-       div.html("value: " + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
+       div.html("" + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
          .style("left", d3.event.pageX + "px")
          .style("top", (d3.event.pageY - 20) + "px")
          .style("font-size", "15px")
@@ -513,28 +515,28 @@ console.log(chart);
 
     // Zip the series data together (first values, second values, etc.)
     var zippedData = [];
-    for (var i=0; i<data.labels.length; i++) {
+    for (var i=0; i< data.labels.length; i++) {
       for (var j=0; j<data.series.length; j++) {
         zippedData.push(data.series[j].values[i]);
       }
     }
 
     // Color scale
-    var color = d3.scale.category10();
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
     var chartHeight = barHeight * zippedData.length + gapBetweenGroups * data.labels.length;
 
-    var x = d3.scale.linear()
+    var x = d3.scaleLinear()
         .domain([0, d3.max(zippedData)])
         .range([0, chartWidth]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
         .range([chartHeight + gapBetweenGroups, 0]);
 
-    var yAxis = d3.svg.axis()
+    var yAxis = d3.axisLeft()
         .scale(y)
         .tickFormat('')
         .tickSize(0)
-        .orient("left");
 
     // Specify the chart area and dimensions
     var chart = d3.select('.chart')
