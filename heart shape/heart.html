@@ -270,8 +270,6 @@ function updateTip(i) {
     .attr("id", "oppositeTip" + i)   
     .style("opacity", 1.0)
   update_tip.html("" + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
-    .style("position", "absolute")
-    .style("z-index", "10")
     .style("left", (cx) + "px")
     .style("top", (cy + 100) + "px")
     .style("font-size", "15px")
@@ -328,17 +326,18 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
 
   updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
 
-  circles.on("mouseover", function(d, i) {
+  circles.on("mouseenter", function(d, i) {
     d3.select(this)
       .attr("fill", i < num / 2? "orange": "green")
       .attr("r", 10)
-    div.transition()
-         .duration(200)
-         .style("opacity", 0.8);
+    // div.transition()
+    //      .duration(200)
+    //      .style("opacity", 0.8);
        div.html("" + (i >= num / 2? x(num - 1 - i): x(i)).toFixed(2))
          .style("left", d3.event.pageX + "px")
          .style("top", (d3.event.pageY - 20) + "px")
          .style("font-size", "15px")
+         .style("opacity", 0.8);
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
       .attr("stroke-width", "3.0px")
@@ -367,20 +366,21 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     d3.select(this)
       .attr("fill", i < num / 2? "red": "blue")
       .attr("r", 4)
-    div.transition()
-         .duration(500)
-         .style("opacity", 0);
+    // div.transition()
+    //      .duration(500)
+    //      .style("opacity", 0);
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
         .attr("stroke-width", "0.5px")
         .attr("stroke", "grey")
         .attr("opacity", "0.3")
       var score = i;
+      // d3.selectAll(".tooltip").remove()
       if (score in female_score_mapping) {
         opposite_scores = female_score_mapping[score]
         for (var j = 0; j < opposite_scores.length; ++j) {
           var p = num - 1 - opposite_scores[j]
-          d3.select("#oppositeTip" + p).remove()
+          d3.select("^=oppositeTip_").remove()
         }
       }
     }
@@ -390,6 +390,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
         .attr("stroke", "grey")
         .attr("opacity", "0.3")
       var score = num - 1 - i;
+      // d3.selectAll(".tooltip").remove()
       if (score in male_score_mapping) {
         opposite_scores = male_score_mapping[score]
         for (var j = 0; j < opposite_scores.length; ++j) {
