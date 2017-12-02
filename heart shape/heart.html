@@ -61,16 +61,42 @@ div.tooltip {
 </style>
 
 <body>
-  <div id="mainselection">
-    <select id="attribute" width="auto">
-      <option value="attractive">Attractive</option>
-      <option value="sincere">Sincere</option>
-      <option value="intelligent">Intelligent</option>
-      <option value="fun">Fun</option>
-      <option value="ambitious">Ambitious</option>
-    </select>
-  </div>
+  <label><font size="5">Attrbute:</font>
+    <div class="mainselection">
+        <select id="attribute" width="auto">
+          <option value="attractive">Attractive</option>
+          <option value="sincere">Sincere</option>
+          <option value="intelligent">Intelligent</option>
+          <option value="fun">Fun</option>
+          <option value="ambitious">Ambitious</option>
+        </select>
+      </label>
+    </div>
+  </label>
 
+  <hr>
+  <div>
+    <label><font size="5">Age:</font>:
+      <div class="mainselection">
+        <select id="male_age" width="auto">
+          <option value="0-100"></option>
+          <option value="25-30">25-30</option>
+          <option value="30-35">30-35</option>
+          <option value="35-40">35-40</option>
+        </select>
+      </div>
+
+      <div class="mainselection">
+        <select id="female_age" width="auto">
+          <option value="0-100"></option>
+          <option value="20-25">20-25</option>
+          <option value="25-30">25-30</option>
+          <option value="30-35">30-35</option>
+          <option value="35-40">35-40</option>
+        </select>
+      </div>
+    </label>
+  </div>
   <!-- template for the heart shape -->
 
 <div position:relative; width = "100%" height = "400px">
@@ -213,14 +239,14 @@ function mappingAttribute(name) {
   }
 }
 
-function updateConnectionLine(d, male_avg, female_avg, data) {
+function updateConnectionLine(pairs, male_avg, female_avg, data) {
   svg.selectAll("[class=link]").remove()
-  svg.selectAll("path").data(d).enter().append("path")
+  svg.selectAll("path.link").data(pairs).enter().append("path")
     .attr('class', 'link')
     .attr("fill", "none")
     .attr("stroke", "grey")
     .attr("stroke-width", "0.5px")
-    .attr("opacity", "0.1")
+    .attr("opacity", "0.3")
     .attr("id1", function(d, i) {
       var x = male_avg[d['iid']]
       var id1 = mappingToPointIndex("boy", mappingScoreToVertexId(x))
@@ -273,14 +299,14 @@ function updateConnectionLine(d, male_avg, female_avg, data) {
 function updateTip(i) {
   var circle = d3.select("#circle_points" + i);
   var cx = circle.attr("cx"), cy = circle.attr("cy")
-  update_tip = d3.select("body").append("div") 
+  update_tip = d3.select("svg").append("text") 
     .attr("class", "tooltip")  
     .attr("id", "oppositeTip" + i)   
     .style("opacity", 1.0)
-  update_tip.html("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(2))
-    .style("left", (cx + 5) + "px")
-    .style("top", (cy + 50) + "px")
-    .style("font-size", "15px")
+  update_tip.text("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(1))
+    .attr("x", (cx + 5) + "px")
+    .attr("y", (cy + 100) + "px")
+    .attr("font-size", "18px")
 }
 
 function updateTipsOnOtherSide(opposite_scores, gender) {
@@ -308,12 +334,44 @@ function mappingBarAttribute(name) {
 
 
 d3.csv("/data/Speed Dating Data.csv", function(data) {
-//  console.log(data)
+  console.log(data)
 
-  male_data = data.filter(row => row['match'] == '1').filter(row => row['gender'] == '1')
-  male_avg_attr1_1 = getAveragePeerScore(data, '1', 'attr1_1')
-  female_avg_attr1_1 = getAveragePeerScore(data, '0', 'attr1_1')
+  // male_data = data.filter(row => row['match'] == '1').filter(row => row['gender'] == '1')
+  // male_avg_attr1_1 = getAveragePeerScore(data, '1', 'attr1_1')
+  // female_avg_attr1_1 = getAveragePeerScore(data, '0', 'attr1_1')
 
+  function updateHeart() {
+    var sect1 = document.getElementById("attribute");
+    var sect2 = document.getElementById("male_age");
+    var sect3 = document.getElementById("female_age");
+    var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
+    var male_age = sect2.options[sect2.selectedIndex].value.split("-")
+    var female_age = sect3.options[sect3.selectedIndex].value.split("-")
+    filtered_male_data = data.filter(row => row['match'] == '1')
+      .filter(row => row['gender'] == '1')
+      .filter(e => +e.age >= +male_age[0] && +e.age < +male_age[1])
+      .filter(e => +e.age_o >= +female_age[0] && +e.age_o < +female_age[1])
+    filtered_female_data = data.filter(row => row['match'] == '1')
+      .filter(row => row['gender'] == '0')
+      .filter(e => +e.age >= +female_age[0] && +e.age < +female_age[1])
+      .filter(e => +e.age_o >= +male_age[0] && +e.age_o < +male_age[1])
+    female_avg = getAveragePeerScore(data, '0', attribute)
+    male_avg = getAveragePeerScore(data, '1', attribute)
+    male_score_mapping = constructMappingScore(filtered_male_data, '1', male_avg, female_avg)
+    female_score_mapping = constructMappingScore(filtered_female_data, '0', female_avg, male_avg)
+    console.log(male_score_mapping)
+    console.log(female_score_mapping)
+    updateConnectionLine(filtered_male_data, male_avg, female_avg, data)
+  }
+
+  updateHeart();
+
+  d3.select('#male_age').on("change", function() {
+    updateHeart()
+  })
+  d3.select('#female_age').on("change", function() {
+    updateHeart()
+  })
   d3.select('#attribute')
     .on("change", function () {
       var sect = document.getElementById("attribute");
@@ -321,18 +379,20 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
 
       updateChart(sect.options[sect.selectedIndex].value);
 
-      female_avg = getAveragePeerScore(data, '0', attribute)
-      male_avg = getAveragePeerScore(data, '1', attribute)
-      male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
-      female_score_mapping = constructMappingScore(data, '0', female_avg, male_avg)
-      updateConnectionLine(male_data, male_avg, female_avg, data)
+      // female_avg = getAveragePeerScore(data, '0', attribute)
+      // male_avg = getAveragePeerScore(data, '1', attribute)
+      // male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
+      // female_score_mapping = constructMappingScore(data, '0', female_avg, male_avg)
+      // updateConnectionLine(male_data, male_avg, female_avg, data)
+      updateHeart()
   });
 
-  
-  male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
-  female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
 
-  updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
+  
+  // male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
+  // female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
+
+  // updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
 
   circles.on("mouseenter", function(d, i) {
     d3.select(this)
