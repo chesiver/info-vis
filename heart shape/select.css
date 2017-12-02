@@ -62,7 +62,7 @@ div { margin: 20px; }
 
 /* -------------------- Select Box Styles: danielneumann.com Method */
 /* -------------------- Source: http://danielneumann.com/blog/how-to-style-dropdown-with-css-only/ */
-#mainselection select {
+.mainselection select {
    border: 0;
    color: white;
    background: transparent;
@@ -75,7 +75,7 @@ div { margin: 20px; }
    -webkit-appearance: none;
 }
 
-#mainselection {
+.mainselection {
    overflow:hidden;
    text-align:center;
    display: table-cell;
