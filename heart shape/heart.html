@@ -307,6 +307,7 @@ function updateTip(i) {
     .attr("x", (cx + 5) + "px")
     .attr("y", (cy + 100) + "px")
     .attr("font-size", "18px")
+    .attr("stroke", i >= num / 2? "red": "blue")
 }
 
 function updateTipsOnOtherSide(opposite_scores, gender) {
