@@ -97,8 +97,36 @@ div.tooltip {
       </div>
     </label>
   </div>
-  <!-- template for the heart shape -->
 
+  <hr>
+  <div>
+    <label><font size="5">Race:</font>:
+      <div class="mainselection">
+        <select id="male_race" width="auto">
+          <option value="0">ALL</option>
+          <option value="1">Black/African American</option>
+          <option value="2">European/Caucasian-American</option>
+          <option value="3">Latino/Hispanic American</option>
+          <option value="4">Asian/Pacific Islander/Asian-American</option>
+          <option value="5">Native American</option>
+          <option value="6">Other</option>
+        </select>
+      </div>
+      <div class="mainselection">
+        <select id="female_race" width="auto">
+          <option value="0">ALL</option>
+          <option value="1">Black/African American</option>
+          <option value="2">European/Caucasian-American</option>
+          <option value="3">Latino/Hispanic American</option>
+          <option value="4">Asian/Pacific Islander/Asian-American</option>
+          <option value="5">Native American</option>
+          <option value="6">Other</option>
+        </select>
+      </div>
+    </label>
+  </div>
+  
+<!-- template for the heart shape -->
 <div position:relative; width = "100%" height = "400px">
   <div width = "70%" height = "800px" style="float:left">
       <svg width="800" height="800">
@@ -311,9 +339,9 @@ function updateTip(i) {
 }
 
 function updateTipsOnOtherSide(opposite_scores, gender) {
-  var last = -10;
+  var last = -5;
   for (var i = 0; i < opposite_scores.length; ++i) {
-    if (opposite_scores[i] - last < 10) continue; 
+    if (opposite_scores[i] - last < 5) continue; 
     updateTip(mappingToPointIndex(gender == "0"? "boy": "girl", 
       mappingScoreToVertexId(opposite_scores[i])))
     last = opposite_scores[i];
@@ -345,17 +373,42 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     var sect1 = document.getElementById("attribute");
     var sect2 = document.getElementById("male_age");
     var sect3 = document.getElementById("female_age");
+    var sect4 = document.getElementById("male_race");
+    var sect5 = document.getElementById("female_race");
     var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
     var male_age = sect2.options[sect2.selectedIndex].value.split("-")
     var female_age = sect3.options[sect3.selectedIndex].value.split("-")
+    var male_race = sect4.options[sect4.selectedIndex].value
+    var female_race = sect5.options[sect5.selectedIndex].value
     filtered_male_data = data.filter(row => row['match'] == '1')
       .filter(row => row['gender'] == '1')
       .filter(e => +e.age >= +male_age[0] && +e.age < +male_age[1])
       .filter(e => +e.age_o >= +female_age[0] && +e.age_o < +female_age[1])
     filtered_female_data = data.filter(row => row['match'] == '1')
-      .filter(row => row['gender'] == '0')
-      .filter(e => +e.age >= +female_age[0] && +e.age < +female_age[1])
-      .filter(e => +e.age_o >= +male_age[0] && +e.age_o < +male_age[1])
+        .filter(row => row['gender'] == '0')
+        .filter(e => +e.age >= +female_age[0] && +e.age < +female_age[1])
+        .filter(e => +e.age_o >= +male_age[0] && +e.age_o < +male_age[1])
+    if (male_race != 0 && female_race != 0) {
+      filtered_male_data = filtered_male_data
+        .filter(e => e.race == male_race)
+        .filter(e => e.race_o == female_race)
+      filtered_female_data = filtered_female_data
+        .filter(e => e.race == female_race)
+        .filter(e => e.race_o == male_race)
+    }
+    else if (male_race != 0) {
+      filtered_male_data = filtered_male_data
+        .filter(e => e.race == male_race)
+      filtered_female_data = filtered_female_data
+        .filter(e => e.race_o == male_race)
+    }
+    else if (female_race != 0) {
+      filtered_male_data = filtered_male_data
+        .filter(e => e.race_o == female_race)
+      filtered_female_data = filtered_female_data
+        .filter(e => e.race == female_race)
+    }
+
     female_avg = getAveragePeerScore(data, '0', attribute)
     male_avg = getAveragePeerScore(data, '1', attribute)
     male_score_mapping = constructMappingScore(filtered_male_data, '1', male_avg, female_avg)
@@ -373,6 +426,13 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   d3.select('#female_age').on("change", function() {
     updateHeart()
   })
+  d3.select('#male_race').on("change", function() {
+    updateHeart()
+  })
+  d3.select('#female_race').on("change", function() {
+    updateHeart()
+  })
+
   d3.select('#attribute')
     .on("change", function () {
       var sect = document.getElementById("attribute");
