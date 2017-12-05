@@ -107,10 +107,27 @@ color:white;
           <option value="fun">Fun</option>
           <option value="ambitious">Ambitiousness</option>
         </select>
-      </label>
-    </div>
-  </label>
-</div>
+      </div>
+    </label>
+   </div>
+
+   <div id="men-bar", align="center">
+   	  <div id="men-bar1"></div>
+   	  <div id="men-bar2"></div>
+   	  <div id="men-bar3"></div>
+   	  <div id="men-bar4"></div>
+   	  <div id="men-bar5"></div>
+   	  <div id="men-bar6"></div>
+   </div>
+   <div id="women-bar", align="center">
+   	  <div id="women-bar1"></div>
+   	  <div id="women-bar2"></div>
+   	  <div id="women-bar3"></div>
+   	  <div id="women-bar4"></div>
+   	  <div id="women-bar5"></div>
+   	  <div id="women-bar6"></div>
+   </div>
+
 
 <div class="container-fluid">
   <div class="card">
@@ -540,6 +557,48 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     updateHeart()
   });
 
+
+  var men_color = ["steelBlue", "green", "black"];
+
+  function unhighlight_men(){
+  	d3.select("men-bar1").selectAll("svg").style("fill", men_color[0]);
+  	d3.select("men-bar2").selectAll("svg").style("fill", men_color[1]);
+  	d3.select("men-bar3").selectAll("svg").style("fill", men_color[2]);
+  }
+
+  var bar_height = 50;
+  var men_bar_data = [23, 45, 32];
+  // prev = 0;
+
+  var men_attr = d3.select("#men-bar1")
+  .append("svg").attr("width", men_bar_data[0]).attr("height", bar_height).style("fill", men_color[0])
+  .append("rect").attr("x", 0).attr("y", 10).attr("width", men_bar_data[0]).attr("height", bar_height)
+  .on("click", function(){
+	  	unhighlight_men();
+	  	men_attr.style("fill", "red");
+  })
+  .append("svg").attr("width", men_bar_data[1]).attr("height", bar_height).style("fill", men_color[1])
+  .append("rect").attr("x", 23).attr("y", 10).attr("width", men_bar_data[1]).attr("height", bar_height)
+  .on("click", function(){
+	  	unhighlight_men();
+	  	men_attr.style("fill", "red");
+  })
+  // var men_sinc = d3.select("#men-bar2")
+  // .append("svg").attr("width", men_bar_data[1]).attr("height", bar_height).style("fill", men_color[1])
+  // .append("rect").attr("x", men_bar_data[0]).attr("y", 10).attr("width", men_bar_data[1]).attr("height", bar_height)
+  // .on("click", function(){
+  // 		unhighlight_men();
+  // 	    men_attr.style("fill", "red");
+  // })
+  // var men_intell = d3.select("#men-bar3")
+  // .append("svg").attr("width", men_bar_data[2]).attr("height", bar_height).style("fill", men_color[2])
+  // .append("rect").attr("x", men_bar_data[1]).attr("y", 10).attr("width", men_bar_data[2]).attr("height", bar_height)
+  // .on("click", function(){
+  // 		unhighlight_men();
+  // 	    men_attr.style("fill", "red");
+  // })
+
+
   circles.on("mouseenter", function(d, i) {
     d3.select(this)
     .attr("fill", i < num / 2? "orange": "green")
@@ -598,7 +657,6 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       .attr("stroke", "grey")
       .attr("opacity", "0.3")
       var score = i - num / 2;
-      // d3.selectAll(".tooltip").remove()
       if (score in male_score_mapping) {
         opposite_scores = male_score_mapping[score]
         for (var j = 0; j < opposite_scores.length; ++j) {
@@ -610,7 +668,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   })
 })
 
-//console.log(d3.schemeCategory10);
+
 
 //////////////////////////////////////////////////////////////////
 
