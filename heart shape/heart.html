@@ -8,7 +8,7 @@
 
 <style>
 
-div.tooltip { 
+div.axis_tooltip { 
   font-family: 'Roboto';
   pointer-events: none !important;
   position: absolute;     
@@ -224,7 +224,7 @@ color:white;
 <!-- template for the heart shape -->
 <div position:relative; width = "100%" height = "400px">
   <div width = "70%" height = "800px" style="float:left">
-    <svg width="800" height="800">
+    <svg width="900" height="800">
       <path id="heart" opacity=0 d="M340.8,98.4c50.7,0,91.9,41.3,91.9,92.3c0,26.2-10.9,49.8-28.3,66.6L256,407.1L105,254.6c-15.8-16.6-25.6-39.1-25.6-63.9
       c0-51,41.1-92.3,91.9-92.3c38.2,0,70.9,23.4,84.8,56.8C269.8,121.9,302.6,98.4,340.8,98.4 M340.8,83C307,83,276,98.8,256,124.8
       c-20-26-51-41.8-84.8-41.8C112.1,83,64,131.3,64,190.7c0,27.9,10.6,54.4,29.9,74.6L245.1,418l10.9,11l10.9-11l148.3-149.8
@@ -276,7 +276,21 @@ pointsArray.forEach(function(d) {
   d.x = d.x * scale
   d.y = d.y * scale - 150
 })
-//console.log(pointsArray)
+
+//
+// svg.append("line")          // attach a line
+//   .style("stroke", "blue")  // colour the line
+//   .attr("x1", 50)     // x position of the first end of the line
+//   .attr("y1", 100)      // y position of the first end of the line
+//   .attr("x2", 50)     // x position of the second end of the line
+//   .attr("y2", 500);    // y position of the second end of the line
+
+// svg.append("line")          // attach a line
+//   .style("stroke", "red")  // colour the line
+//   .attr("x1", 800)     // x position of the first end of the line
+//   .attr("y1", 100)      // y position of the first end of the line
+//   .attr("x2", 800)     // x position of the second end of the line
+//   .attr("y2", 500);    // y position of the second end of the line
 
 //draw the scaling red points
 var valueline = d3.line()
@@ -284,14 +298,14 @@ var valueline = d3.line()
 .y(function(d) { return d.y; })
 
 svg.append("text")
-.attr("x", 1000)
+.attr("x", 100)
 .attr("y", 100)
 .attr("font-size", "30px")
 .text("Men");
 
 svg.append("text")
-.attr("x", 850)
-.attr("y", 200)
+.attr("x", 750)
+.attr("y", 100)
 .attr("font-size", "30px")
 .text("Women");
 
@@ -303,10 +317,12 @@ svg.append("path")
 .attr("fill", "none")
 .attr("stroke", "#000")
 .attr("stroke-width", "2px")
-.attr("opacity", "0.3")
+.attr("opacity", "0.1")
+
+//
 
 var div = d3.select("body").append("div") 
-.attr("class", "tooltip")       
+.attr("class", "axis_tooltip")       
 .style("opacity", 0);
 
 // mapping from [0, num / 2 - 1] -> [0, 100]
@@ -324,11 +340,28 @@ circles.attr("cx", function(d) {return d.x})
   if (i < num / 2) return "red";
   else return "blue"
 })
+.attr("fill-opacity", "0.3")
 .attr("id", function(d, i) {
   return "circle_points" + i;
 })
 .attr("opacity", "0.5")
 
+function showTip(i, dx) {
+  var circle = d3.select("#circle_points" + i);
+  var cx = circle.attr("cx"), cy = circle.attr("cy")
+  update_tip = d3.select("svg").append("text") 
+    .attr("id", "fixed_tip" + i)   
+    .style("opacity", 1.0)
+  update_tip.text("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(1))
+    .attr("x", (cx + dx) + "px")
+    .attr("y", (cy + 50) + "px")
+    .attr("font-size", "18px")
+    .attr("stroke", i >= num / 2? "red": "blue")
+}
+
+showTip(0, 0);
+showTip(num / 2 - 1, 10);
+showTip(num - 1, 0);
 //draw the blue center point, with help to draw the quadratic connection curve
 // svg.append("circle")
 //   .attr("cx", centerX)
@@ -430,7 +463,6 @@ function updateTip(i) {
   var circle = d3.select("#circle_points" + i);
   var cx = circle.attr("cx"), cy = circle.attr("cy")
   update_tip = d3.select("svg").append("text") 
-  .attr("class", "tooltip")  
   .attr("id", "oppositeTip" + i)   
   .style("opacity", 1.0)
   update_tip.text("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(1))
@@ -486,7 +518,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     var matched = sect6.options[sect6.selectedIndex].value
 
     filtered_matched_data = data.filter(e => e.match == matched)
-    
+
     filtered_male_data = filtered_matched_data
     .filter(row => row['gender'] == '1')
     .filter(e => +e.age >= +male_age[0] && +e.age < +male_age[1])
@@ -551,9 +583,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   .on("change", function () {
     var sect = document.getElementById("attribute");
     var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
-
     updateChart(sect.options[sect.selectedIndex].value);
-
     updateHeart()
   });
 
@@ -602,12 +632,24 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   circles.on("mouseenter", function(d, i) {
     d3.select(this)
     .attr("fill", i < num / 2? "orange": "green")
+    .attr("fill-opacity", "0.8")
     .attr("r", 10)
-    div.html("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(2))
-    .style("left", d3.event.pageX + "px")
-    .style("top", (d3.event.pageY - 20) + "px")
-    .style("font-size", "15px")
-    .style("opacity", 0.8);
+    // div.html("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(2))
+    // .style("left", d3.event.pageX + "px")
+    // .style("top", (d3.event.pageY - 20) + "px")
+    // .style("font-size", "15px")
+    // .style("opacity", 0.8);
+    var circle = d3.select("#circle_points" + i);
+    var cx = circle.attr("cx"), cy = circle.attr("cy")
+    update_tip = d3.select("svg").append("text") 
+      .attr("id", "tip" + i)   
+      .style("opacity", 1.0)
+    update_tip.text("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(1))
+      .attr("x", (cx + 100) + "px")
+      .attr("y", (cy + 100) + "px")
+      .attr("font-size", "18px")
+      .attr("stroke", i >= num / 2? "red": "blue")
+
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
       .attr("stroke-width", "3.0px")
@@ -635,8 +677,9 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   .on("mouseout", function(d, i) {
     d3.select(this)
     .attr("fill", i < num / 2? "red": "blue")
+    .attr("fill-opacity", "0.3")
     .attr("r", 4)
-    div.style("opacity", 0.0)
+    d3.select("#tip" + i).remove()
     if (i < num / 2) {
       d3.selectAll("[id2='" + i + "']")
       .attr("stroke-width", "0.5px")
