@@ -183,6 +183,24 @@ color:white;
 
     </div>
 
+    <div class="row">
+
+      <div class="col-md-1">
+        <h3>Matched</h3>
+      </div>
+
+      <div class="col-md-2">
+        <div class="dropdown">
+          <select id="matched">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+
   </div>
 </div>
 
@@ -442,16 +460,21 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     var sect3 = document.getElementById("female_age");
     var sect4 = document.getElementById("male_race");
     var sect5 = document.getElementById("female_race");
+    var sect6 = document.getElementById("matched");
     var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
     var male_age = sect2.options[sect2.selectedIndex].value.split("-")
     var female_age = sect3.options[sect3.selectedIndex].value.split("-")
     var male_race = sect4.options[sect4.selectedIndex].value
     var female_race = sect5.options[sect5.selectedIndex].value
-    filtered_male_data = data.filter(row => row['match'] == '1')
+    var matched = sect6.options[sect6.selectedIndex].value
+
+    filtered_matched_data = data.filter(e => e.match == matched)
+    
+    filtered_male_data = filtered_matched_data
     .filter(row => row['gender'] == '1')
     .filter(e => +e.age >= +male_age[0] && +e.age < +male_age[1])
     .filter(e => +e.age_o >= +female_age[0] && +e.age_o < +female_age[1])
-    filtered_female_data = data.filter(row => row['match'] == '1')
+    filtered_female_data = filtered_matched_data
     .filter(row => row['gender'] == '0')
     .filter(e => +e.age >= +female_age[0] && +e.age < +female_age[1])
     .filter(e => +e.age_o >= +male_age[0] && +e.age_o < +male_age[1])
@@ -476,10 +499,15 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       .filter(e => e.race == female_race)
     }
 
+    console.log(filtered_male_data)
+    console.log(filtered_female_data)
+
     female_avg = getAveragePeerScore(data, '0', attribute)
     male_avg = getAveragePeerScore(data, '1', attribute)
+
     male_score_mapping = constructMappingScore(filtered_male_data, '1', male_avg, female_avg)
     female_score_mapping = constructMappingScore(filtered_female_data, '0', female_avg, male_avg)
+
     console.log(male_score_mapping)
     console.log(female_score_mapping)
     updateConnectionLine(filtered_male_data, male_avg, female_avg, data)
@@ -499,7 +527,9 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   d3.select('#female_race').on("change", function() {
     updateHeart()
   })
-
+  d3.select('#matched').on("change", function() {
+    updateHeart()
+  })
   d3.select('#attribute')
   .on("change", function () {
     var sect = document.getElementById("attribute");
@@ -507,20 +537,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
 
     updateChart(sect.options[sect.selectedIndex].value);
 
-      // female_avg = getAveragePeerScore(data, '0', attribute)
-      // male_avg = getAveragePeerScore(data, '1', attribute)
-      // male_score_mapping = constructMappingScore(data, '1', male_avg, female_avg)
-      // female_score_mapping = constructMappingScore(data, '0', female_avg, male_avg)
-      // updateConnectionLine(male_data, male_avg, female_avg, data)
-      updateHeart()
-    });
-
-
-  
-  // male_score_mapping = constructMappingScore(data, '1', male_avg_attr1_1, female_avg_attr1_1)
-  // female_score_mapping = constructMappingScore(data, '0', female_avg_attr1_1, male_avg_attr1_1)
-
-  // updateConnectionLine(male_data, male_avg_attr1_1, female_avg_attr1_1)
+    updateHeart()
+  });
 
   circles.on("mouseenter", function(d, i) {
     d3.select(this)
