@@ -260,6 +260,21 @@ pointsArray.forEach(function(d) {
   d.y = d.y * scale - 150
 })
 
+//
+// svg.append("line")          // attach a line
+//   .style("stroke", "blue")  // colour the line
+//   .attr("x1", 50)     // x position of the first end of the line
+//   .attr("y1", 100)      // y position of the first end of the line
+//   .attr("x2", 50)     // x position of the second end of the line
+//   .attr("y2", 500);    // y position of the second end of the line
+
+// svg.append("line")          // attach a line
+//   .style("stroke", "red")  // colour the line
+//   .attr("x1", 800)     // x position of the first end of the line
+//   .attr("y1", 100)      // y position of the first end of the line
+//   .attr("x2", 800)     // x position of the second end of the line
+//   .attr("y2", 500);    // y position of the second end of the line
+
 //draw the scaling red points
 var valueline = d3.line()
 .x(function(d) { return d.x; })
@@ -287,6 +302,8 @@ svg.append("path")
 .attr("stroke-width", "2px")
 .attr("opacity", "0.1")
 
+//
+
 var div = d3.select("body").append("div") 
 .attr("class", "axis_tooltip")       
 .style("opacity", 0);
@@ -312,6 +329,22 @@ circles.attr("cx", function(d) {return d.x})
 })
 .attr("opacity", "0.5")
 
+function showTip(i, dx) {
+  var circle = d3.select("#circle_points" + i);
+  var cx = circle.attr("cx"), cy = circle.attr("cy")
+  update_tip = d3.select("svg").append("text") 
+    .attr("id", "fixed_tip" + i)   
+    .style("opacity", 1.0)
+  update_tip.text("" + (i >= num / 2? i - num / 2: num / 2 - 1 - i).toFixed(1))
+    .attr("x", (cx + dx) + "px")
+    .attr("y", (cy + 50) + "px")
+    .attr("font-size", "18px")
+    .attr("stroke", i >= num / 2? "red": "blue")
+}
+
+showTip(0, 0);
+showTip(num / 2 - 1, 10);
+showTip(num - 1, 0);
 //draw the blue center point, with help to draw the quadratic connection curve
 // svg.append("circle")
 //   .attr("cx", centerX)
@@ -585,7 +618,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
   .on("mouseout", function(d, i) {
     d3.select(this)
     .attr("fill", i < num / 2? "red": "blue")
-    .attr("fill-opacity", "0.5")
+    .attr("fill-opacity", "0.3")
     .attr("r", 4)
     d3.select("#tip" + i).remove()
     if (i < num / 2) {
