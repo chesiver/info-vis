@@ -28,7 +28,7 @@ function getAveragePeerScore(data, gender, attr) {
 // { score in right: score array in left site }
 function constructMappingScore(data, gender, avg, opposite_avg) {
 	pairs_by_iid = d3.nest().key(function(d) { return d['iid'] })
-		.entries(data.filter(row => row['match'] == '1').filter(row => row['gender'] == gender));
+		.entries(data.filter(row => row['gender'] == gender));
 	res = {}
 	for (var i = 0; i < pairs_by_iid.length; ++i) {
 		var iid = pairs_by_iid[i]["key"]
