@@ -96,21 +96,11 @@ color:white;
   <span class="navbar-brand">Speed Dating Visualization</a>
 </nav>
 
-
   <div>
-    <label><font size="5">TO BE REPLACED BY SUMIT<br>Attribute:</font>
-      <div class="mainselection">
-        <select id="attribute" width="auto">
-          <option value="attractive">Attractiveness</option>
-          <option value="sincere">Sincerity</option>
-          <option value="intelligent">Intelligence</option>
-          <option value="fun">Fun</option>
-          <option value="ambitious">Ambitiousness</option>
-        </select>
-      </div>
     </label>
    </div>
 
+  <div id="stacked-rep"></div>
 
 <div class="container-fluid">
   <div class="card">
@@ -222,13 +212,17 @@ color:white;
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 </body>
 
+<script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-path.v1.min.js"></script>
 <script src="/heart shape/path-data-polyfill.js"></script>
 <script src="/heart shape/loadData.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
 <script>
 
+  var chosen_attribute = "attr1_1";
 
   $("#main-button").on("click",function(event){
     $("#overlay").fadeOut(500);
@@ -465,20 +459,8 @@ function updateTipsOnOtherSide(opposite_scores, gender) {
 
 
 
-
-function mappingBarAttribute(name) {
-  switch (name) {
-    case "attractive": return ;
-    case "sincere": return ;
-    case "intelligent": return ;
-    case "fun": return ;
-    case "ambitious": return ;
-  }
-}
-
-
 d3.csv("/data/Speed Dating Data.csv", function(data) {
-  console.log(data)
+  // console.log(data)
 
 
   function updateHeart() {
@@ -488,7 +470,13 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     var sect4 = document.getElementById("male_race");
     var sect5 = document.getElementById("female_race");
     var sect6 = document.getElementById("matched");
-    var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
+
+    // TODO!!!!!
+    attribute = chosen_attribute;
+    console.log("chosen_attribute: "+chosen_attribute);
+    // var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
+    // console.log(attribute);
+
     var male_age = sect2.options[sect2.selectedIndex].value.split("-")
     var female_age = sect3.options[sect3.selectedIndex].value.split("-")
     var male_race = sect4.options[sect4.selectedIndex].value
@@ -526,8 +514,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       .filter(e => e.race == female_race)
     }
 
-    console.log(filtered_male_data)
-    console.log(filtered_female_data)
+    // console.log(filtered_male_data)
+    // console.log(filtered_female_data)
 
     female_avg = getAveragePeerScore(data, '0', attribute)
     male_avg = getAveragePeerScore(data, '1', attribute)
@@ -535,8 +523,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     male_score_mapping = constructMappingScore(filtered_male_data, '1', male_avg, female_avg)
     female_score_mapping = constructMappingScore(filtered_female_data, '0', female_avg, male_avg)
 
-    console.log(male_score_mapping)
-    console.log(female_score_mapping)
+    // console.log(male_score_mapping)
+    // console.log(female_score_mapping)
     updateConnectionLine(filtered_male_data, male_avg, female_avg, data)
   }
 
@@ -555,12 +543,6 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     updateHeart()
   })
   d3.select('#matched').on("change", function() {
-    updateHeart()
-  })
-  d3.select('#attribute')
-  .on("change", function () {
-    var sect = document.getElementById("attribute");
-    var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
     updateHeart()
   });
 
@@ -646,7 +628,104 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       }
     }
   })
+
+  var repColors = ['#023858','#49006a'];
+  var repColorsLight1 = ["#08519c","#3182bd","#6baed6","#bdd7e7","#eff3ff"];
+  var repColorsLight2 = ["#dd3497","#f768a1","#fa9fb5","#fcc5c0","#fde0dd"];
+
+  function cumulChart(id, dataset, party) {
+    //Width and height
+    var m = {top: 10, right: 10, bottom: 10, left: 20}, // margins
+        h = 150 - m.left - m.right, // height
+        w = (1980 - m.top - m.bottom)*8; // width
+
+    //Set up stack method
+    var stack = d3.layout.stack();
+
+    stack(dataset);
+
+    //Set up scales
+    var xScale = d3.scale.ordinal()
+      .domain(d3.range(dataset[0].length))
+      .rangeRoundBands([0, h], 0.2); // This is actually the Y scale (candidates)
+      var yScale = d3.scale.linear()
+        .domain([0, 1237])
+        .range([0, w]); // This is actually the X Scale (States)
+
+    //Create SVG element
+    var svg = d3.select(id)
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+    // Add a group for each row of data
+    var groups = svg.selectAll("g")
+      .data(dataset)
+      .enter()
+      .append("g")
+      .attr("class", "g_stacked "+party)
+        .attr("transform", "translate(" + m.left + ",0)");
+
+    function indexMap(col){
+      switch(col){
+        case "Attractiveness": return 0;
+        case "Sincerity": return 1;
+        case "Intelligence": return 2;
+        case "Fun": return 3;
+        case "Ambitiousness": return 4;
+      }
+    }
+    
+
+    // Add a rect for each data value
+    var rects = groups
+      .selectAll("rect")
+      .data(function(d) { return d; })
+        .enter()
+      .append("rect")
+      .attr("class", "stacked")
+      .attr("x", function(d) {
+        return yScale(d.y0);
+      })
+      .attr("y", function(d, i) {
+        return xScale(i);
+      })
+      .attr("width", function(d) {
+        return yScale(d.y);
+      })
+      .attr("height", xScale.rangeBand())
+      .style("fill", function(d, i) {
+          console.log(indexMap(d.state));
+          if(i==0) {return repColorsLight1[indexMap(d.state)];}
+          else {return repColorsLight2[indexMap(d.state)];}
+          
+      })
+      .style("stroke", function(d, i) {
+          return repColors[i];
+      })
+      .on("click", function(d) {
+        console.log(d.state);
+        // d3.select(this).style("fill", "red");
+        switch(d.state){
+          case "Attractiveness": chosen_attribute = "attr1_1"; break;
+          case "Sincerity": chosen_attribute = "sinc1_1"; break;
+          case "Intelligence": chosen_attribute = "intel1_1"; break;
+          case "Fun": chosen_attribute = "fun1_1"; break;
+          case "Ambitiousness": chosen_attribute = "amb1_1"; break;
+        }
+        console.log("chosen_attribute here!: ", chosen_attribute);
+        updateHeart();
+      });
+
+    rects.append("title")
+      .text(function(d){ return d.state + ": " + d.y; });
+
+  }
+
+  d3.json("rep_stacked.json", function(data){
+    cumulChart("#stacked-rep", data, "republicans");
+  });
+
 })
 
-
-</script>
+ </script>
