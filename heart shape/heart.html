@@ -134,9 +134,9 @@ body{
     </div>
   </nav> -->
 
-  <div class="container-fluid" style="background-color: rgba(96,125,139,.8); margin-top:0px; padding: 20px 0px 5px 20px;">
+  <div class="container-fluid" style="background-color: rgba(96,125,139,.11); margin-top:0px; padding: 20px 0px 5px 20px; box-shadow: 0 2px 2px rgba(0,0,0,0.2)">
     <!-- <span class="navbar-brand">Select Attribute</span> -->
-    <h4 style="color: white; font-weight:400;">Select Attribute</h4>
+    <h4>Select Attribute</h4>
     <div id="stacked-rep">
     </div>
   </div>
@@ -678,9 +678,13 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     }
   })
 
-  var repColors = ['white','white'];
-  var repColorsLight1 = ["#0D47A1","#1976D2","#2196F3","#64B5F6","#BBDEFB"];
-  var repColorsLight2 = ["#B71C1C","#D32F2F","#F44336","#E57373","#FFCDD2"];
+  var repColors = ['black','black'];
+  // var repColorsLight1 = ["#0D47A1","#1976D2","#2196F3","#64B5F6","#BBDEFB"];
+  // var repColorsLight2 = ["#B71C1C","#D32F2F","#F44336","#E57373","#FFCDD2"];
+  var repColorsLight1 = ["#788585","#CCDAD1","#6F6866","#9CAEA9","#38302E"];
+  var repColorsLight2 = ["#788585","#CCDAD1","#6F6866","#9CAEA9","#38302E"];
+
+
 
   function cumulChart(id, dataset, party) {
     //Width and height
@@ -711,14 +715,14 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     .attr("x", 0)
     .attr("y", 40)
     .attr("font-size", "18px")
-    .style("fill", "white")
+    .style("fill", "black")
     .text("Male");
 
     svg.append("text")
     .attr("x", 0)
     .attr("y", 100)
     .attr("font-size", "18px")
-    .style("fill", "white")
+    .style("fill", "black")
     .text("Female");
 
     // Add a group for each row of data
@@ -769,6 +773,7 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     .on("mouseover",function(d){
       d3.select(this).style("opacity","0.7");
       d3.select(this).style("cursor","pointer");
+
     })
     .on("mouseout",function(d){
       d3.select(this).style("opacity","1");
