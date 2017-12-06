@@ -124,9 +124,34 @@ body{
   </div>
 
   <div class="container-fluid" style="background-color: rgba(96,125,139,.11); margin-top:0px; padding: 20px 0px 5px 20px; box-shadow: 0 2px 2px rgba(0,0,0,0.2)">
+
     <h4>What do you look for most in the opposite sex</h4>
-    <div id="stacked-rep">
+
+  <div class="row" style="margin-bottom: 0">  
+    <div class="col-md-1">
     </div>
+    <div class="col-md-2">
+        Attractiveness
+    </div>
+
+    <div class="col-md-1" style="margin-left: 120px; padding: 0px; margin-bottom: 0px">
+        Sincerity
+    </div>
+    <div class="col-md-1" style="margin-left: 40px; padding: 0px; margin-bottom: 0px">
+        Intelligence
+    </div>
+    <div class="col-md-1" style="margin-left: 70px; padding: 0px; margin-bottom: 0px">
+        Fun
+    </div>
+    <div class="col-md-1" style="margin-left: 0px; padding: 0px; margin-bottom: 0px">
+        Ambitiousness
+    </div>
+
+</div>
+
+    <div id="stacked-rep">
+
+</div>
   </div>
 
   <div class="container-fluid">
@@ -510,8 +535,6 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     // TODO!!!!!
     attribute = chosen_attribute;
     console.log("chosen_attribute: "+chosen_attribute);
-    // var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
-    // console.log(attribute);
 
     var male_age = sect2.options[sect2.selectedIndex].value.split("-")
     var female_age = sect3.options[sect3.selectedIndex].value.split("-")
