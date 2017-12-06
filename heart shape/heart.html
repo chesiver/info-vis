@@ -138,87 +138,7 @@ div.axis_tooltip {
           <option value="ambitious">Ambitiousness</option>
         </select>
       </div>
-
-      <div class="col-md-2">
-        <div class="dropdown">
-          <select id="male_age" width="auto">
-            <option value="0-100">All</option>
-            <option value="20-25">20-25</option>
-            <option value="25-30">25-30</option>
-            <option value="30-35">30-35</option>
-            <option value="35-40">35-40</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="col-md-2">
-        <div class="dropdown">
-          <select id="female_age" width="auto">
-            <option value="0-100">All</option>
-            <option value="20-25">20-25</option>
-            <option value="25-30">25-30</option>
-            <option value="30-35">30-35</option>
-            <option value="35-40">35-40</option>
-          </select>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="row">
-
-      <div class="col-md-1">
-        <h3>Race</h3>
-      </div>
-
-      <div class="col-md-2">
-        <div class="dropdown">
-          <select id="male_race">
-            <option value="0">All</option>
-            <option value="1">Black/African American</option>
-            <option value="2">European/Caucasian-American</option>
-            <option value="3">Latino/Hispanic American</option>
-            <option value="4">Asian/Pacific Islander/Asian-American</option>
-            <option value="5">Native American</option>
-            <option value="6">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="col-md-2">
-        <div class="dropdown">
-          <select id="female_race">
-            <option value="0">All</option>
-            <option value="1">Black/African American</option>
-            <option value="2">European/Caucasian-American</option>
-            <option value="3">Latino/Hispanic American</option>
-            <option value="4">Asian/Pacific Islander/Asian-American</option>
-            <option value="5">Native American</option>
-            <option value="6">Other</option>
-          </select>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="row">
-
-      <div class="col-md-1">
-        <h3>Matched</h3>
-      </div>
-
-      <div class="col-md-2">
-        <div class="dropdown">
-          <select id="matched">
-            <option value="1">Yes</option>
-            <option value="0">No</option>
-          </select>
-        </div>
-
-      </div>
-    </div>
-
-
+    </label>
   </div>
 
   <div class="container-fluid">
@@ -400,12 +320,14 @@ svg.append("text")
 .attr("x", 0)
 .attr("y", 30)
 .attr("font-size", "30px")
+.style("fill", "darkblue")
 .text("Male");
 
 svg.append("text")
 .attr("x", 800)
 .attr("y", 30)
 .attr("font-size", "30px")
+.style("fill", "darkred")
 .text("Female");
 
 var centerX = width / 2 + 30, centerY = height / 2 - 150;
