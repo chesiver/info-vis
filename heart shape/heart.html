@@ -77,7 +77,7 @@ div.axis_tooltip {
 .noFluff{
   /*margin-top: 0px;*/
   margin-bottom: 0px;
-/*  padding-top: 0px;*/
+  /*  padding-top: 0px;*/
   padding-bottom: 0px;
 }
 
@@ -86,59 +86,59 @@ div.axis_tooltip {
   text-decoration: underline;
 }
 
+body{
+  overflow-x: hidden;
+}
+
 </style>
 
 <body>
 
-<div id="overlay">
-<div class="container" style="margin: 50px;">
-  <div class="row">
-    <div class="col-md-8">
-      <h1>Speed Dating Visualization</h1>
-      <br>
-      <p>
-        The data we are visualizing were originally collected as part of a 2002-2004 study at Columbia University.  You can find the paper <a href="http://faculty.chicagobooth.edu/emir.kamenica/documents/genderDifferences.pdf" class="myLink">here</a> and the data <a href="http://www.stat.columbia.edu/~gelman/arm/examples/speed.dating/" class="myLink">here</a>.
-        <br><br>
-        Our visualization shows data from 227 men and 225 women across 17 different speed dating events, for a total for a total of ~7,000 dates.
-        <br><br>
-        As part of the dates, each person evaluated their partner by distributing 100 points across 5 attributes:
-        <br>- Attractiveness
-        <br>- Sincerity
-        <br>- Intelligence
-        <br>- Fun
-        <br>- Ambitiousness
-      </p>
-    </div>
-  </div>
+<!--   <div id="overlay">
+    <div class="container" style="margin: 50px;">
 
-  <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-4">
-      <button type="button" class="btn btn-outline-light btn-block" id="main-button">Explore the data!</button>
-    </div>
-  </div>
-</div>
-
-
-</div>
-
-<nav class="navbar sticky-top navbar-dark bg-dark">
-  <span class="navbar-brand">Speed Dating Visualization</span>
-  </nav>
-
-
-  <div>
-    <label><font size="5">TO BE REPLACED BY SUMIT<br>Attribute:</font>
-      <div class="mainselection">
-        <select id="attribute" width="auto">
-          <option value="attractive">Attractiveness</option>
-          <option value="sincere">Sincerity</option>
-          <option value="intelligent">Intelligence</option>
-          <option value="fun">Fun</option>
-          <option value="ambitious">Ambitiousness</option>
-        </select>
+      <div class="row">
+        <div class="col-md-8">
+          <h1>Speed Dating Visualization</h1>
+          <br>
+          <p>
+            The data we are visualizing were originally collected as part of a 2002-2004 study at Columbia University.  You can find the paper <a href="http://faculty.chicagobooth.edu/emir.kamenica/documents/genderDifferences.pdf" class="myLink">here</a> and the data <a href="http://www.stat.columbia.edu/~gelman/arm/examples/speed.dating/" class="myLink">here</a>.
+            <br><br>
+            Our visualization shows data from 227 men and 225 women across 17 different speed dating events, for a total of ~7,000 dates.
+            <br><br>
+            As part of the dates, each person evaluated their partner by distributing 100 points across 5 attributes:
+            <br>- Attractiveness
+            <br>- Sincerity
+            <br>- Intelligence
+            <br>- Fun
+            <br>- Ambitiousness
+          </p>
+        </div>
       </div>
-    </label>
+
+      <div class="row">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-4">
+          <button type="button" class="btn btn-outline-light btn-block" id="main-button">Explore the data!</button>
+        </div>
+      </div>
+
+    </div>
+  </div> -->
+
+<!--   <nav class="navbar navbar-dark" style="background-color: rgba(96,125,139,.8)">
+    <span class="navbar-brand">Select Attribute</span>
+    <h4>Select Attribute</h4>
+    <div id="stacked-rep">
+    </div>
+  </nav> -->
+
+  <div class="container-fluid" style="background-color: rgba(96,125,139,.8); margin-top:0px; padding: 20px 0px 5px 20px;">
+    <!-- <span class="navbar-brand">Select Attribute</span> -->
+    <h4 style="color: white; font-weight:400;">Select Attribute</h4>
+    <div id="stacked-rep">
+    </div>
   </div>
 
   <div class="container-fluid">
@@ -159,7 +159,7 @@ div.axis_tooltip {
 
         <!-- Control Panel Card Start -->
         <div class="myCard card">
-          
+
           <div class="row noFluff">
 
             <div class="col-md-11 noFluff">
@@ -167,7 +167,7 @@ div.axis_tooltip {
               <br>
               <hr>
             </div>
-          
+
           </div>
 
           <div class="row">
@@ -248,7 +248,6 @@ div.axis_tooltip {
 
         </div>
         <!-- Control Panel Card End -->
-
       </div>
 
     </div>
@@ -260,13 +259,17 @@ div.axis_tooltip {
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 </body>
 
+<script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-path.v1.min.js"></script>
 <script src="/heart shape/path-data-polyfill.js"></script>
 <script src="/heart shape/loadData.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
 <script>
 
+  var chosen_attribute = "attr1_1";
 
   $("#main-button").on("click",function(event){
     $("#overlay").fadeOut(500);
@@ -317,17 +320,17 @@ var valueline = d3.line()
 .y(function(d) { return d.y; })
 
 svg.append("text")
-.attr("x", 0)
+.attr("x", 100)
 .attr("y", 30)
 .attr("font-size", "30px")
-.style("fill", "darkblue")
+.style("fill", "#1A237E")
 .text("Male");
 
 svg.append("text")
-.attr("x", 800)
+.attr("x", 700)
 .attr("y", 30)
 .attr("font-size", "30px")
-.style("fill", "darkred")
+.style("fill", "#B71C1C")
 .text("Female");
 
 var centerX = width / 2 + 30, centerY = height / 2 - 150;
@@ -383,7 +386,7 @@ function showTip(i, dx) {
 showTip(0, 0);
 showTip(num / 2 - 1, 10);
 showTip(num - 1, 0);
-//draw the blue center point, with help to draw the quadratic connection curve
+//draw the   center point, with help to draw the quadratic connection curve
 // svg.append("circle")
 //   .attr("cx", centerX)
 //   .attr("cy", centerY)
@@ -505,20 +508,8 @@ function updateTipsOnOtherSide(opposite_scores, gender) {
 
 
 
-
-function mappingBarAttribute(name) {
-  switch (name) {
-    case "attractive": return ;
-    case "sincere": return ;
-    case "intelligent": return ;
-    case "fun": return ;
-    case "ambitious": return ;
-  }
-}
-
-
 d3.csv("/data/Speed Dating Data.csv", function(data) {
-  console.log(data)
+  // console.log(data)
 
 
   function updateHeart() {
@@ -528,7 +519,13 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     var sect4 = document.getElementById("male_race");
     var sect5 = document.getElementById("female_race");
     var sect6 = document.getElementById("matched");
-    var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
+
+    // TODO!!!!!
+    attribute = chosen_attribute;
+    console.log("chosen_attribute: "+chosen_attribute);
+    // var attribute = mappingAttribute(sect1.options[sect1.selectedIndex].value);
+    // console.log(attribute);
+
     var male_age = sect2.options[sect2.selectedIndex].value.split("-")
     var female_age = sect3.options[sect3.selectedIndex].value.split("-")
     var male_race = sect4.options[sect4.selectedIndex].value
@@ -566,8 +563,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       .filter(e => e.race == female_race)
     }
 
-    console.log(filtered_male_data)
-    console.log(filtered_female_data)
+    // console.log(filtered_male_data)
+    // console.log(filtered_female_data)
 
     female_avg = getAveragePeerScore(data, '0', attribute)
     male_avg = getAveragePeerScore(data, '1', attribute)
@@ -575,8 +572,8 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     male_score_mapping = constructMappingScore(filtered_male_data, '1', male_avg, female_avg)
     female_score_mapping = constructMappingScore(filtered_female_data, '0', female_avg, male_avg)
 
-    console.log(male_score_mapping)
-    console.log(female_score_mapping)
+    // console.log(male_score_mapping)
+    // console.log(female_score_mapping)
     updateConnectionLine(filtered_male_data, male_avg, female_avg, data)
   }
 
@@ -595,13 +592,6 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
     updateHeart()
   })
   d3.select('#matched').on("change", function() {
-    updateHeart()
-  })
-  d3.select('#attribute')
-  .on("change", function () {
-    var sect = document.getElementById("attribute");
-    var attribute = mappingAttribute(sect.options[sect.selectedIndex].value);
-    updateChart(sect.options[sect.selectedIndex].value);
     updateHeart()
   });
 
@@ -687,7 +677,125 @@ d3.csv("/data/Speed Dating Data.csv", function(data) {
       }
     }
   })
-})
 
+  var repColors = ['white','white'];
+  var repColorsLight1 = ["#0D47A1","#1976D2","#2196F3","#64B5F6","#BBDEFB"];
+  var repColorsLight2 = ["#B71C1C","#D32F2F","#F44336","#E57373","#FFCDD2"];
+
+  function cumulChart(id, dataset, party) {
+    //Width and height
+    var m = {top: 10, right: 10, bottom: 10, left: 10}, // margins
+        h = 150 - m.left - m.right, // height
+        w = (1980 - m.top - m.bottom)*7; // width
+
+    //Set up stack method
+    var stack = d3.layout.stack();
+
+    stack(dataset);
+
+    //Set up scales
+    var xScale = d3.scale.ordinal()
+    .domain(d3.range(dataset[0].length))
+      .rangeRoundBands([0, h], 0.2); // This is actually the Y scale (candidates)
+      var yScale = d3.scale.linear()
+      .domain([0, 1237])
+        .range([0, w]); // This is actually the X Scale (States)
+
+    //Create SVG element
+    var svg = d3.select(id)
+    .append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+    svg.append("text")
+    .attr("x", 0)
+    .attr("y", 40)
+    .attr("font-size", "18px")
+    .style("fill", "white")
+    .text("Male");
+
+    svg.append("text")
+    .attr("x", 0)
+    .attr("y", 100)
+    .attr("font-size", "18px")
+    .style("fill", "white")
+    .text("Female");
+
+    // Add a group for each row of data
+    var groups = svg.selectAll("g")
+    .data(dataset)
+    .enter()
+    .append("g")
+    .attr("class", "g_stacked "+party)
+    .attr("transform", "translate(" + m.left + ",0)");
+
+    function indexMap(col){
+      switch(col){
+        case "Attractiveness": return 0;
+        case "Sincerity": return 1;
+        case "Intelligence": return 2;
+        case "Fun": return 3;
+        case "Ambitiousness": return 4;
+      }
+    }
+    
+
+    // Add a rect for each data value
+    var rects = groups
+    .selectAll("rect")
+    .data(function(d) { return d; })
+    .enter()
+    .append("rect")
+    .attr("class", "stacked")
+    .attr("x", function(d) {
+      return yScale(d.y0)+90;
+    })
+    .attr("y", function(d, i) {
+      return xScale(i);
+    })
+    .attr("width", function(d) {
+      return yScale(d.y);
+    })
+    .attr("height", xScale.rangeBand())
+    .style("fill", function(d, i) {
+      console.log(indexMap(d.state));
+      if(i==0) {return repColorsLight1[indexMap(d.state)];}
+      else {return repColorsLight2[indexMap(d.state)];}
+
+    })
+    .style("stroke", function(d, i) {
+      return repColors[i];
+    })
+    .on("mouseover",function(d){
+      d3.select(this).style("opacity","0.7");
+      d3.select(this).style("cursor","pointer");
+    })
+    .on("mouseout",function(d){
+      d3.select(this).style("opacity","1");
+    })
+    .on("click", function(d) {
+      console.log(d.state);
+        // d3.select(this).style("fill", "red");
+        switch(d.state){
+          case "Attractiveness": chosen_attribute = "attr1_1"; break;
+          case "Sincerity": chosen_attribute = "sinc1_1"; break;
+          case "Intelligence": chosen_attribute = "intel1_1"; break;
+          case "Fun": chosen_attribute = "fun1_1"; break;
+          case "Ambitiousness": chosen_attribute = "amb1_1"; break;
+        }
+        console.log("chosen_attribute here!: ", chosen_attribute);
+        updateHeart();
+      });
+
+    rects.append("title")
+    .text(function(d){ return d.state + ": " + d.y; });
+
+  }
+
+  d3.json("rep_stacked.json", function(data){
+    cumulChart("#stacked-rep", data, "republicans");
+  });
+
+})
 
 </script>
